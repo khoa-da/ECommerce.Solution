@@ -17,6 +17,8 @@ public partial class Category
 
     public DateTime UpdatedDate { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual ICollection<Category> InverseParent { get; set; } = new List<Category>();
 
     public virtual Category? Parent { get; set; }

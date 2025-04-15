@@ -19,6 +19,8 @@ public partial class Store
 
     public DateTime UpdatedDate { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual ICollection<StoreProduct> StoreProducts { get; set; } = new List<StoreProduct>();

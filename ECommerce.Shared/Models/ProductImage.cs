@@ -15,5 +15,7 @@ public partial class ProductImage
 
     public int DisplayOrder { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual Product Product { get; set; } = null!;
 }

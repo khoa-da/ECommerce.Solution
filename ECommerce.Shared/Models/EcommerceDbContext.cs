@@ -46,6 +46,7 @@ public partial class EcommerceDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
@@ -119,6 +120,7 @@ public partial class EcommerceDbContext : DbContext
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Size).HasMaxLength(50);
             entity.Property(e => e.Sku).HasColumnName("SKU");
+            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
@@ -135,6 +137,7 @@ public partial class EcommerceDbContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
                 .HasForeignKey(d => d.ProductId)
@@ -173,6 +176,7 @@ public partial class EcommerceDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasDefaultValueSql("(getdate())");
         });
 

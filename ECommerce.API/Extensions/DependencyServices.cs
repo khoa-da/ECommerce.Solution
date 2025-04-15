@@ -1,4 +1,5 @@
-﻿using ECommerce.Core.Services.Implementations;
+﻿using CloudinaryDotNet;
+using ECommerce.Core.Services.Implementations;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Implementations;
 using ECommerce.Infrastructure.Repositories.Interfaces;
@@ -33,11 +34,24 @@ public static class DependencyServices
 
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var cloudinaryConfig = configuration.GetSection("Cloudinary").Get<Dictionary<string, string>>();
+        var account = new Account(
+            cloudinaryConfig["CloudName"],
+            cloudinaryConfig["ApiKey"],
+            cloudinaryConfig["ApiSecret"]
+        );
+
+        var cloudinary = new Cloudinary(account);
+        services.AddSingleton(cloudinary);
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
-       
-      
+        services.AddScoped<IProductImageService, ProductImageService>();
+        services.AddScoped<IImageService, CloudinaryService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IStoreService, StoreService>();
+
 
         return services;
     }
