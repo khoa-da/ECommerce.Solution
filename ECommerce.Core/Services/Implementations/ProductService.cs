@@ -248,8 +248,36 @@ namespace ECommerce.Core.Services.Implementations
             return product;
         }
 
-        public async Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, int page, int size)
+        public async Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, string? search, string? orderBy, int page, int size)
         {
+            search = search?.Trim().ToLower();
+
+            // Define the order by function based on the orderBy parameter
+            Func<IQueryable<Product>, IOrderedQueryable<Product>> orderByFunc;
+
+            switch (orderBy?.ToLower())
+            {
+                case "name":
+                    orderByFunc = q => q.OrderBy(x => x.Name);
+                    break;
+                case "name_desc":
+                    orderByFunc = q => q.OrderByDescending(x => x.Name);
+                    break;
+                case "price":
+                    orderByFunc = q => q.OrderBy(x => x.Price);
+                    break;
+                case "price_desc":
+                    orderByFunc = q => q.OrderByDescending(x => x.Price);
+                    break;
+                case "created":
+                    orderByFunc = q => q.OrderBy(x => x.CreatedDate);
+                    break;
+                case "created_desc":
+                default:
+                    orderByFunc = q => q.OrderByDescending(x => x.CreatedDate);
+                    break;
+            }
+
             var product = await _unitOfWork.GetRepository<Product>().GetPagingListAsync(
                 selector: x => new ProductResponse
                 {
@@ -263,18 +291,27 @@ namespace ECommerce.Core.Services.Implementations
                     UpdatedDate = x.UpdatedDate,
                     Gender = x.Gender,
                     Size = x.Size,
+                    Stock = x.Stock,
                     Brand = x.Brand,
                     Sku = x.Sku,
                     Tags = x.Tags,
                     Material = x.Material,
                     Status = x.Status,
-                    MainImage = x.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
+                    MainImage = x.ProductImages.FirstOrDefault(img => img.IsMain).ImageUrl
                 },
-                predicate: x => x.CategoryId == categoryId,
-                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                predicate: x => x.CategoryId == categoryId &&
+                                (string.IsNullOrEmpty(search) ||
+                                 x.Name.ToLower().Contains(search) ||
+                                 x.Description.ToLower().Contains(search) ||
+                                 x.Brand.ToLower().Contains(search) ||
+                                 x.Sku.ToLower().Contains(search) ||
+                                 x.Tags.ToLower().Contains(search)),
+                orderBy: orderByFunc,
+                include: x => x.Include(x => x.Category).Include(x => x.ProductImages),
                 page: page,
                 size: size
             );
+
             return product;
         }
 

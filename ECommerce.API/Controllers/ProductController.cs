@@ -4,6 +4,7 @@ using ECommerce.Shared.Enums;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Product;
 using ECommerce.Shared.Payload.Response.Product;
+using ECommerce.Shared.Payload.Response.ProductImage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +15,11 @@ namespace ECommerce.API.Controllers
     public class ProductController : BaseController<ProductController>
     {
         private readonly IProductService _productService;
-        public ProductController(ILogger<ProductController> logger, IProductService productService) : base(logger)
+        private readonly IProductImageService _productImageService;
+        public ProductController(ILogger<ProductController> logger, IProductService productService, IProductImageService productImageService) : base(logger)
         {
             _productService = productService;
+            _productImageService = productImageService;
         }
 
         [HttpPost(ApiEndPointConstant.Product.ProductsEndpoint)]
@@ -47,6 +50,15 @@ namespace ECommerce.API.Controllers
             var response = await _productService.GetByBrand(brand.ToString(), page, size);
             return Ok(response);
         }
+
+        [HttpGet(ApiEndPointConstant.Product.ImagesInProductEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductImageResponse>))]
+        public async Task<IActionResult> GetImagesInProduct(Guid id)
+        {
+            var response = await _productImageService.GetByProductId(id);
+            return Ok(response);
+        }
+
 
     }
 }

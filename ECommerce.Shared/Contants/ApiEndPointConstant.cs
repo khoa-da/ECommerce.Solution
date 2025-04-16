@@ -42,18 +42,21 @@ namespace ECommerce.Shared.Contants
             public const string ProductsEndpoint = ApiEndpoint + "/products";
             public const string ProductEndpoint = ProductsEndpoint + "/{id}";
             public const string ProductByBrandIdEndpoint = ProductsEndpoint + "/brand/{brand}";
+            public const string ImagesInProductEndpoint = ProductEndpoint + "/images";
         }
         public static class Category
         {
             public const string CategoriesEndpoint = ApiEndpoint + "/categories";
             public const string CategoryEndpoint = CategoriesEndpoint + "/{id}";
             public const string CategoryByParentIdEndpoint = CategoriesEndpoint + "/parent/{parentId}";
+            public const string ProductsInCategoryEndpoint = CategoryEndpoint + "/products";
         }
         public static class Store
         {
             public const string StoresEndpoint = ApiEndpoint + "/stores";
             public const string StoreEndpoint = StoresEndpoint + "/{id}";
-            
+            public const string ProductsInStoreEndpoint = StoreEndpoint + "/products";
+
         }
         public static class StoreProduct
         {

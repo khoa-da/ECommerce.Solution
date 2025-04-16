@@ -103,9 +103,44 @@ namespace ECommerce.Core.Services.Implementations
             return true;
         }
 
-        public async Task<IPaginate<ProductResponse>> GetAllProductsByStoreId(Guid storeId, int page, int size)
+        public async Task<IPaginate<ProductResponse>> GetAllProductsByStoreId(Guid storeId, string? search, string? orderBy, int page, int size)
         {
-            var product = await _unitOfWork.GetRepository<StoreProduct>().GetPagingListAsync(
+            search = search?.Trim().ToLower();
+
+            // Define the order by function based on the orderBy parameter
+            Func<IQueryable<StoreProduct>, IOrderedQueryable<StoreProduct>> orderByFunc;
+
+            switch (orderBy?.ToLower())
+            {
+                case "name":
+                    orderByFunc = q => q.OrderBy(x => x.Product.Name);
+                    break;
+                case "name_desc":
+                    orderByFunc = q => q.OrderByDescending(x => x.Product.Name);
+                    break;
+                case "price":
+                    orderByFunc = q => q.OrderBy(x => x.Price);
+                    break;
+                case "price_desc":
+                    orderByFunc = q => q.OrderByDescending(x => x.Price);
+                    break;
+                case "stock":
+                    orderByFunc = q => q.OrderBy(x => x.Stock);
+                    break;
+                case "stock_desc":
+                    orderByFunc = q => q.OrderByDescending(x => x.Stock);
+                    break;
+                case "created":
+                    orderByFunc = q => q.OrderBy(x => x.Product.CreatedDate);
+                    break;
+                case "created_desc":
+                default:
+                    orderByFunc = q => q.OrderByDescending(x => x.Product.CreatedDate);
+                    break;
+            }
+
+            // Get the paginated list with proper mapping to ProductResponse
+            var products = await _unitOfWork.GetRepository<StoreProduct>().GetPagingListAsync(
                 selector: x => new ProductResponse
                 {
                     Id = x.Product.Id,
@@ -123,15 +158,24 @@ namespace ECommerce.Core.Services.Implementations
                     Sku = x.Product.Sku,
                     Tags = x.Product.Tags,
                     Material = x.Product.Material,
-                    Status = x.Product.Status
+                    Status = x.Product.Status,
+                    MainImage = x.Product.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
                 },
-                predicate: x => x.StoreId == storeId,
+                predicate: x => x.StoreId == storeId &&
+                      (string.IsNullOrEmpty(search) ||
+                       x.Product.Name.ToLower().Contains(search) ||
+                       x.Product.Description.ToLower().Contains(search) ||
+                       x.Product.Brand.ToLower().Contains(search) ||
+                       x.Product.Sku.ToLower().Contains(search) ||
+                       x.Product.Tags.ToLower().Contains(search) ||
+                       x.Product.Category.Name.ToLower().Contains(search)),
+                orderBy: orderByFunc,
                 include: x => x.Include(x => x.Product).ThenInclude(x => x.Category),
                 page: page,
                 size: size
-                );
-            return product;
-          
+            );
+
+            return products;
         }
 
         public async Task<StoreProductDetailResponse> GetStoreProductById(Guid storeId, Guid productId)

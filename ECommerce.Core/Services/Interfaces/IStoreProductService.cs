@@ -16,6 +16,6 @@ namespace ECommerce.Core.Services.Interfaces
         Task<bool> DeleteStoreProduct(Guid storeId, Guid productId);
         Task<StoreProductResponse> UpdateStoreProduct(Guid id, StoreProductRequest storeProductRequest);
         Task<StoreProductDetailResponse> GetStoreProductById(Guid storeId, Guid productId);
-        Task<IPaginate<ProductResponse>> GetAllProductsByStoreId(Guid storeId, int page, int size);
+        Task<IPaginate<ProductResponse>> GetAllProductsByStoreId(Guid storeId, string? search, string? orderBy, int page, int size);
     }
 }

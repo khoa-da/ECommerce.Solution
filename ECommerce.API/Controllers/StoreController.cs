@@ -2,6 +2,7 @@
 using ECommerce.Shared.Contants;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Store;
+using ECommerce.Shared.Payload.Response.Product;
 using ECommerce.Shared.Payload.Response.Store;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,11 @@ namespace ECommerce.API.Controllers
     public class StoreController : BaseController<StoreController>
     {
         private readonly IStoreService _storeService;
-        public StoreController(ILogger<StoreController> logger, IStoreService storeService) : base(logger)
+        private readonly IStoreProductService _storeProductService;
+        public StoreController(ILogger<StoreController> logger, IStoreService storeService, IStoreProductService storeProductService) : base(logger)
         {
             _storeService = storeService;
+            _storeProductService = storeProductService;
         }
         [HttpPost(ApiEndPointConstant.Store.StoresEndpoint)]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StoreResponse))]
@@ -45,5 +48,14 @@ namespace ECommerce.API.Controllers
             var response = await _storeService.Update(id, request);
             return Ok(response);
         }
+
+        [HttpGet(ApiEndPointConstant.Store.ProductsInStoreEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductResponse>))]
+        public async Task<IActionResult> GetProductsInStore(Guid id, string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var response = await _storeProductService.GetAllProductsByStoreId(id, search, orderBy, page, size);
+            return Ok(response);
+        }
+
     }
 }

@@ -3,6 +3,7 @@ using ECommerce.Shared.Contants;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Category;
 using ECommerce.Shared.Payload.Response.Category;
+using ECommerce.Shared.Payload.Response.Product;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,11 @@ namespace ECommerce.API.Controllers
     public class CategoryController : BaseController<CategoryController>
     {
         private readonly ICategoryService _categoryService;
-        public CategoryController(ILogger<CategoryController> logger, ICategoryService categoryService) : base(logger)
+        private readonly IProductService _productService;
+        public CategoryController(ILogger<CategoryController> logger, ICategoryService categoryService, IProductService productService) : base(logger)
         {
             _categoryService = categoryService;
+            _productService = productService;
         }
 
         [HttpPost(ApiEndPointConstant.Category.CategoriesEndpoint)]
@@ -46,5 +49,14 @@ namespace ECommerce.API.Controllers
             var response = await _categoryService.GetByParentId(parentId, search, orderBy, page, size);
             return Ok(response);
         }
+
+        [HttpGet(ApiEndPointConstant.Category.ProductsInCategoryEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductResponse>))]
+        public async Task<IActionResult> GetProductsInCategory(Guid id, string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var response = await _productService.GetByCategoryId(id, search, orderBy, page, size);
+            return Ok(response);
+        }
+
     }
 }

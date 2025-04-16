@@ -15,7 +15,7 @@ namespace ECommerce.Core.Services.Interfaces
         Task<ProductDetailResponse> GetById(Guid id);
         Task<ProductResponse> Update(Guid id, ProductRequest request);
         Task<bool> Delete(Guid id);
-        Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, int page, int size);
+        Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, string? search, string? orderBy, int page, int size);
         Task<IPaginate<ProductResponse>> GetByBrand(string brand, int page, int size);
         Task<IPaginate<ProductResponse>> GetAll(string? search, string? orderBy, int page, int size);
 
