@@ -20,6 +20,7 @@ namespace ECommerce.Core.Mapper
                 .ReverseMap();
             CreateMap<Product, ProductResponse>()
                 .ReverseMap();
+            CreateMap<Product, ProductDetailResponse>().ReverseMap();
         }
     }
 }

@@ -27,7 +27,7 @@ namespace ECommerce.API.Controllers
             return CreatedAtAction(nameof(Create), new { id = response.Id }, response);
         }
         [HttpGet(ApiEndPointConstant.Product.ProductEndpoint)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponse))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDetailResponse))]
         public async Task<IActionResult> GetById(Guid id)
         {
             var response = await _productService.GetById(id);

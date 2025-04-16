@@ -109,7 +109,7 @@ namespace ECommerce.Core.Services.Implementations
             return savedImages;
         }
 
-        private async Task<ProductImage> CreateProductImageAsync(Guid productId, string base64Image, bool isMain, int displayOrder)
+        private async Task<ProductImage?> CreateProductImageAsync(Guid productId, string base64Image, bool isMain, int displayOrder)
         {
             var imageRequest = new UploadImgRequest
             {
@@ -185,7 +185,25 @@ namespace ECommerce.Core.Services.Implementations
                 }
             }
             var products = await _unitOfWork.GetRepository<Product>().GetPagingListAsync(
-                selector: x => _mapper.Map<ProductResponse>(x),
+                selector: x => new ProductResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.Category.Name,
+                    Description = x.Description,
+                    Price = x.Price,
+                    CreatedDate = x.CreatedDate,
+                    UpdatedDate = x.UpdatedDate,
+                    Gender = x.Gender,
+                    Size = x.Size,
+                    Brand = x.Brand,
+                    Sku = x.Sku,
+                    Tags = x.Tags,
+                    Material = x.Material,
+                    Status = x.Status,
+                    MainImage = x.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
+                },
                 predicate: x => string.IsNullOrEmpty(search) || x.Name.ToLower().Contains(search),
                 orderBy: orderByFunc,
                 page: page,
@@ -195,6 +213,42 @@ namespace ECommerce.Core.Services.Implementations
         }
 
         public async Task<IPaginate<ProductResponse>> GetByBrand(string brand, int page, int size)
+        {
+            if (string.IsNullOrEmpty(brand))
+            {
+                throw new ArgumentException("Brand cannot be null or empty", nameof(brand));
+            }
+
+            var product = await _unitOfWork.GetRepository<Product>().GetPagingListAsync(
+                selector: x => new ProductResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.Category.Name,
+                    Description = x.Description,
+                    Price = x.Price,
+                    CreatedDate = x.CreatedDate,
+                    UpdatedDate = x.UpdatedDate,
+                    Gender = x.Gender,
+                    Size = x.Size,
+                    Brand = x.Brand,
+                    Sku = x.Sku,
+                    Tags = x.Tags,
+                    Material = x.Material,
+                    Status = x.Status,
+                    MainImage = x.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
+                },
+                predicate: x => x.Brand != null && x.Brand.ToLower().Equals(brand.ToLower()),
+                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                include: x => x.Include(x => x.Category),
+                page: page,
+                size: size
+            );
+            return product;
+        }
+
+        public async Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, int page, int size)
         {
             var product = await _unitOfWork.GetRepository<Product>().GetPagingListAsync(
                 selector: x => new ProductResponse
@@ -214,20 +268,8 @@ namespace ECommerce.Core.Services.Implementations
                     Tags = x.Tags,
                     Material = x.Material,
                     Status = x.Status,
+                    MainImage = x.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
                 },
-                predicate: x => x.Brand.ToLower().Equals(brand.ToLower()),
-                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
-                include: x => x.Include(x => x.Category),
-                page: page,
-                size: size
-            );
-            return product;
-        }
-
-        public async Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, int page, int size)
-        {
-            var product = await _unitOfWork.GetRepository<Product>().GetPagingListAsync(
-                selector: x => _mapper.Map<ProductResponse>(x),
                 predicate: x => x.CategoryId == categoryId,
                 orderBy: q => q.OrderByDescending(x => x.CreatedDate),
                 page: page,
@@ -236,17 +278,17 @@ namespace ECommerce.Core.Services.Implementations
             return product;
         }
 
-        public async Task<ProductResponse> GetById(Guid id)
+        public async Task<ProductDetailResponse> GetById(Guid id)
         {
-            var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == id);
+            var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == id, include: x => x.Include(x => x.Category).Include(x => x.ProductImages));
             if (product == null)
             {
                 throw new Exception("Product not found");
             }
-            var productResponse = _mapper.Map<ProductResponse>(product);
+            var productResponse = _mapper.Map<ProductDetailResponse>(product);
+            productResponse.CategoryName = product.Category.Name;
+            productResponse.ImageUrls = product.ProductImages.Select(x => x.ImageUrl).ToList();
             return productResponse;
-
-            
         }
 
         public Task<ProductResponse> Update(Guid id, ProductRequest request)

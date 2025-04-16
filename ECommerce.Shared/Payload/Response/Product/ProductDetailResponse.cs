@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ECommerce.Shared.Payload.Response.Product
 {
-    public class ProductResponse
+    public class ProductDetailResponse
     {
         public Guid Id { get; set; }
 
@@ -38,6 +38,6 @@ namespace ECommerce.Shared.Payload.Response.Product
         public string? Material { get; set; }
 
         public string? Status { get; set; }
-        public string? MainImage { get; set; }
+        public ICollection<string>? ImageUrls { get; set; }
     }
 }

@@ -190,6 +190,7 @@ public partial class EcommerceDbContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Product).WithMany(p => p.StoreProducts)
                 .HasForeignKey(d => d.ProductId)

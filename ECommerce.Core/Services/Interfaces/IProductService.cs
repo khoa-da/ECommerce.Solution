@@ -12,7 +12,7 @@ namespace ECommerce.Core.Services.Interfaces
     public interface IProductService
     {
         Task<CreateProductResponse> Create(ProductRequest request);
-        Task<ProductResponse> GetById(Guid id);
+        Task<ProductDetailResponse> GetById(Guid id);
         Task<ProductResponse> Update(Guid id, ProductRequest request);
         Task<bool> Delete(Guid id);
         Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, int page, int size);

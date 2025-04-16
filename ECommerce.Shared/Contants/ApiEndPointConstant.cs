@@ -55,5 +55,11 @@ namespace ECommerce.Shared.Contants
             public const string StoreEndpoint = StoresEndpoint + "/{id}";
             
         }
+        public static class StoreProduct
+        {
+            public const string StoreProductsEndpoint = ApiEndpoint + "/store-products";
+            public const string StoreProductEndpoint = StoreProductsEndpoint + "/{storeId}/{productId}";
+          
+        }
     }
 }
