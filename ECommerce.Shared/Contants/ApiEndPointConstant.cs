@@ -64,5 +64,18 @@ namespace ECommerce.Shared.Contants
             public const string StoreProductEndpoint = StoreProductsEndpoint + "/{storeId}/{productId}";
           
         }
+        public static class OrderItem
+        {
+            public const string OrderItemsEndpoint = ApiEndpoint + "/order-items";
+            public const string OrderItemEndpoint = OrderItemsEndpoint + "/{id}";
+        }
+
+        public static class Cart
+        {
+            public const string CartsEndpoint = ApiEndpoint + "/carts";
+            public const string CartItemEndpoint = CartsEndpoint + "/items";
+            public const string MergeCartEndpoint = CartsEndpoint + "/merge";
+            public const string CartItemEndpointByProductId = CartItemEndpoint + "/{productId}";
+        }
     }
 }

@@ -68,9 +68,11 @@ public partial class EcommerceDbContext : DbContext
             entity.Property(e => e.OrderStatus)
                 .HasMaxLength(20)
                 .HasDefaultValue("Processing");
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
             entity.Property(e => e.PaymentStatus)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
+            entity.Property(e => e.ShippingMethod).HasMaxLength(50);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Store).WithMany(p => p.Orders)
@@ -94,6 +96,7 @@ public partial class EcommerceDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Quantity).HasDefaultValue(1);
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -25,10 +26,17 @@ public static class DependencyServices
         return services;
     }
 
-    public static IServiceCollection AddDatabase(this IServiceCollection services)
+    public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        IConfiguration configuration = new ConfigurationBuilder().Build();
+        var connection = configuration.GetConnectionString("RedisConnection");
         services.AddDbContext<EcommerceDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var configurationOptions = ConfigurationOptions.Parse(configuration.GetConnectionString("RedisConnection"));
+            configurationOptions.Ssl = true;
+            configurationOptions.AbortOnConnectFail = false;
+            return ConnectionMultiplexer.Connect(configurationOptions);
+        });
         return services;
     }
 
@@ -52,6 +60,7 @@ public static class DependencyServices
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IStoreService, StoreService>();
         services.AddScoped<IStoreProductService, StoreProductService>();
+        services.AddScoped<ICartService, CartService>();
 
 
         return services;
