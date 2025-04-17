@@ -73,6 +73,7 @@ namespace ECommerce.Core.Services.Implementations
             // Tạo StoreProduct mới
             var newStoreProduct = _mapper.Map<StoreProduct>(storeProductRequest);
             newStoreProduct.Id = Guid.NewGuid();
+            newStoreProduct.Price = storeProductRequest.Price ?? product.Price;
 
             await storeProductRepo.InsertAsync(newStoreProduct);
 

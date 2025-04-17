@@ -1,4 +1,5 @@
-﻿using ECommerce.Shared.Paginate;
+﻿using ECommerce.Shared.BusinessModels;
+using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Product;
 using ECommerce.Shared.Payload.Response.Product;
 using System;
@@ -18,6 +19,7 @@ namespace ECommerce.Core.Services.Interfaces
         Task<IPaginate<ProductResponse>> GetByCategoryId(Guid categoryId, string? search, string? orderBy, int page, int size);
         Task<IPaginate<ProductResponse>> GetByBrand(string brand, int page, int size);
         Task<IPaginate<ProductResponse>> GetAll(string? search, string? orderBy, int page, int size);
+        Task<Cart> AddToCart(Guid productId, int quantity, Guid storeId);
 
     }
 }

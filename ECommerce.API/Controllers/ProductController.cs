@@ -1,4 +1,5 @@
 ﻿using ECommerce.Core.Services.Interfaces;
+using ECommerce.Shared.BusinessModels;
 using ECommerce.Shared.Contants;
 using ECommerce.Shared.Enums;
 using ECommerce.Shared.Paginate;
@@ -59,6 +60,13 @@ namespace ECommerce.API.Controllers
             return Ok(response);
         }
 
+        [HttpPost(ApiEndPointConstant.Product.AddToCartEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Cart))]
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartProductRequest addToCartProductRequest)
+        {
+            var cart = await _productService.AddToCart(addToCartProductRequest.ProductId, addToCartProductRequest.Quantity, addToCartProductRequest.StoreId);
+            return Ok(cart);
+        }
 
     }
 }

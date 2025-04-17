@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
+using Azure;
+using Azure.Core;
+using ECommerce.Core.Exceptions;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
+using ECommerce.Shared.BusinessModels;
 using ECommerce.Shared.Enums;
 using ECommerce.Shared.Models;
 using ECommerce.Shared.Paginate;
@@ -22,10 +26,14 @@ namespace ECommerce.Core.Services.Implementations
     public class ProductService : BaseService<ProductService>, IProductService
     {
         private readonly IImageService _imageService;
+        private readonly ICartService _cartService;
+        private readonly string _guestCartCookieName = "guest_cart_id";
+        private readonly TimeSpan _guestCartCookieExpiry = TimeSpan.FromDays(7);
 
-        public ProductService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<ProductService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor, IImageService imageService) : base(unitOfWork, logger, mapper, httpContextAccessor)
+        public ProductService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<ProductService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor, IImageService imageService, ICartService cartService) : base(unitOfWork, logger, mapper, httpContextAccessor)
         {
             _imageService = imageService;
+            _cartService = cartService;
         }
 
         public async Task<CreateProductResponse> Create(ProductRequest request)
@@ -332,5 +340,83 @@ namespace ECommerce.Core.Services.Implementations
         {
             throw new NotImplementedException();
         }
+
+        public async Task<Cart> AddToCart(Guid productId, int quantity, Guid storeId)
+        {
+            // Validate the product exists
+            var product = await _unitOfWork.GetRepository<Product>()
+                .SingleOrDefaultAsync(
+                    predicate: x => x.Id == productId,
+                    include: x => x.Include(p => p.ProductImages)
+                );
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException("Product not found");
+            }
+
+            // Check stock availability in the specified store
+            var storeProduct = await _unitOfWork.GetRepository<StoreProduct>()
+                .SingleOrDefaultAsync(
+                    predicate: x => x.ProductId == productId && x.StoreId == storeId
+                );
+
+            if (storeProduct == null)
+            {
+                throw new EntityNotFoundException("Product not available in this store");
+            }
+
+            if (storeProduct.Stock < quantity)
+            {
+                throw new InvalidOperationException("Not enough stock");
+            }
+
+            // Get main image URL safely using null conditional operator
+            var mainImage = product.ProductImages?.FirstOrDefault(x => x.IsMain)?.ImageUrl;
+
+            var cartItem = new CartItem
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                Price = storeProduct.Price.Value,
+                Quantity = quantity,
+                ImageUrl = mainImage
+            };
+
+            Cart cart;
+
+            // Check if user is authenticated
+            var userId = GetUserIdFromJwt();
+            if (userId != null)
+            {
+                // User is logged in - get or create their cart
+                cart = await _cartService.GetUserCartAsync(Guid.Parse(userId));
+            }
+            else
+            {
+                // Handle guest cart with cookies
+                string guestId = GetCookieValue(_guestCartCookieName);
+                if (string.IsNullOrEmpty(guestId))
+                {
+                    guestId = GenerateNewGuid();
+                    // Set cookie for guest cart
+                    SetCookie(
+                        _guestCartCookieName,
+                        guestId,
+                        _guestCartCookieExpiry
+                    );
+                }
+                cart = await _cartService.GetGuestCartAsync(guestId);
+                if (cart == null)
+                {
+                    cart = await _cartService.CreateGuestCartAsync(guestId);
+                }
+            }
+
+            // Add the item to the cart
+            var updatedCart = await _cartService.AddToCartAsync(cart.Id, cartItem);
+            return updatedCart;
+        }
+
     }
 }

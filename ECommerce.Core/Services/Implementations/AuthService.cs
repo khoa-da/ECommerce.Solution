@@ -19,8 +19,11 @@ namespace ECommerce.Core.Services.Implementations
 {
     public class AuthService : BaseService<AuthService>, IAuthService
     {
-        public AuthService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<AuthService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(unitOfWork, logger, mapper, httpContextAccessor)
+        private readonly ICartService _cartService;
+        private readonly string _guestCartCookieName = "guest_cart_id";
+        public AuthService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<AuthService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICartService cartService) : base(unitOfWork, logger, mapper, httpContextAccessor)
         {
+            _cartService = cartService;
         }
 
         public async Task<LoginResponse> Login(LoginRequest loginRequest)
@@ -55,6 +58,29 @@ namespace ECommerce.Core.Services.Implementations
             loginResponse.RefreshToken = token.RefreshToken;
             loginResponse.AccessTokenExpires = token.AccessTokenExpires;
             loginResponse.RefreshTokenExpires = token.RefreshTokenExpires;
+
+
+            try
+            {
+                string guestId = GetCookieValue(_guestCartCookieName);
+                if (!string.IsNullOrEmpty(guestId))
+                {
+                    var guestCart = await _cartService.GetGuestCartAsync(guestId);
+                    if (guestCart != null && guestCart.Items.Count > 0)
+                    {
+                        // Merge guest cart with user cart
+                        await _cartService.MergeCartsAsync(guestCart.Id, user.Id);
+                    }
+
+                    // Delete guest cart cookie
+                    DeleteCookie(_guestCartCookieName);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while merging guest cart with user cart");
+            }
+
             return loginResponse;
             
         }
