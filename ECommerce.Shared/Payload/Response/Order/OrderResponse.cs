@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ECommerce.Shared.Payload.Response.OrderItem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,6 +37,6 @@ namespace ECommerce.Shared.Payload.Response.Order
         public string? PaymentMethod { get; set; }
 
         public string? ShippingMethod { get; set; }
-        public List<Guid>? OrderItems { get; set; }
+        public List<OrderItemResponse>? OrderItems { get; set; }
     }
 }

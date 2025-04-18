@@ -391,6 +391,11 @@ namespace ECommerce.Core.Services.Implementations
             {
                 // User is logged in - get or create their cart
                 cart = await _cartService.GetUserCartAsync(Guid.Parse(userId));
+                if (cart == null)
+                {
+                    // Create a new cart for the user if one doesn't exist
+                    cart = await _cartService.CreateCartAsync(Guid.Parse(userId));
+                }
             }
             else
             {
