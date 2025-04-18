@@ -18,8 +18,10 @@ namespace ECommerce.Core.Services.Implementations
 {
     public class OrderService : BaseService<OrderService>, IOrderService
     {
-        public OrderService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<OrderService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(unitOfWork, logger, mapper, httpContextAccessor)
+        private readonly ICartService _cartService;
+        public OrderService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<OrderService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICartService cartService) : base(unitOfWork, logger, mapper, httpContextAccessor)
         {
+            _cartService = cartService;
         }
 
         public Task<OrderResponse> ChangeStatus(Guid id, string status)
@@ -34,17 +36,29 @@ namespace ECommerce.Core.Services.Implementations
             {
                 throw new ArgumentNullException(nameof(order), "Order request cannot be null.");
             }
+
+            // Validate user
             var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: x => x.Id == order.UserId);
-            if(user == null)
+            if (user == null)
             {
                 throw new EntryPointNotFoundException("User not found.");
             }
+
+            // Validate store
             var store = await _unitOfWork.GetRepository<Store>().SingleOrDefaultAsync(predicate: x => x.Id == order.StoreId);
             if (store == null)
             {
                 throw new EntryPointNotFoundException("Store not found.");
             }
 
+            // Get user's cart
+            var cart = await _cartService.GetUserCartAsync(order.UserId);
+            if (cart == null || cart.Items.Count == 0)
+            {
+                throw new InvalidOperationException("Cart is empty. Cannot create order.");
+            }
+
+            // Create order entity
             var orderEntity = _mapper.Map<Order>(order);
             orderEntity.Id = Guid.NewGuid();
             orderEntity.OrderDate = DateTime.UtcNow.AddHours(7);
@@ -52,40 +66,66 @@ namespace ECommerce.Core.Services.Implementations
             orderEntity.PaymentStatus = OrderEnum.PaymentStatus.Pending.ToString();
             orderEntity.OrderStatus = OrderEnum.OrderStatus.Processing.ToString();
 
-            //Process the order items
-            if(order.ProductId != null && order.ProductId.Count > 0)
+            // Process the order items from cart
+            var orderItems = new List<OrderItem>();
+            foreach (var cartItem in cart.Items)
             {
-                var orderItems = new List<OrderItem>();
-                foreach (var itemId in order.ProductId)
+                // Verify product still exists and stock is available
+                var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(
+                    predicate: x => x.Id == cartItem.ProductId);
+
+                if (product == null)
                 {
-                    var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == itemId);
-                    if (product == null)
-                    {
-                        throw new EntryPointNotFoundException($"Product with ID {itemId} not found.");
-                    }
-                    var orderItemEntity = new OrderItem
-                    {
-                        Id = Guid.NewGuid(),
-                        OrderId = orderEntity.Id,
-                        ProductId = product.Id,
-                        //Quantity = orderItem.Quantity,
-                        Price = product.Price,
-                        //TotalAmount = product.Price * orderItem.Quantity
-                    };
-
-                    orderItems.Add(orderItemEntity);
-
+                    throw new EntryPointNotFoundException($"Product with ID {cartItem.ProductId} not found.");
                 }
-                orderEntity.OrderItems = orderItems;
-                orderEntity.TotalAmount = orderItems.Sum(item => item.TotalAmount);
+
+                // Check stock availability
+                var storeProduct = await _unitOfWork.GetRepository<StoreProduct>()
+                    .SingleOrDefaultAsync(predicate: x => x.ProductId == cartItem.ProductId && x.StoreId == order.StoreId);
+
+                if (storeProduct == null)
+                {
+                    throw new InvalidOperationException($"Product {product.Name} is not available in this store.");
+                }
+
+                if (storeProduct.Stock < cartItem.Quantity)
+                {
+                    throw new InvalidOperationException($"Not enough stock for product {product.Name}. Available: {storeProduct.Stock}, Requested: {cartItem.Quantity}");
+                }
+
+                // Create order item
+                var orderItemEntity = new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = orderEntity.Id,
+                    ProductId = cartItem.ProductId,
+                    Quantity = cartItem.Quantity,
+                    Price = cartItem.Price,
+                    TotalAmount = cartItem.Quantity * cartItem.Price
+                };
+
+                orderItems.Add(orderItemEntity);
+
+                // Update product stock
+                storeProduct.Stock -= cartItem.Quantity;
+                _unitOfWork.GetRepository<StoreProduct>().UpdateAsync(storeProduct);
             }
 
+            orderEntity.OrderItems = orderItems;
+            orderEntity.TotalAmount = orderItems.Sum(item => item.TotalAmount);
+
+            // Save the order
             await _unitOfWork.GetRepository<Order>().InsertAsync(orderEntity);
-            if(await _unitOfWork.CommitAsync() <= 0)
+
+            // Clear the cart after successful order creation
+            await _cartService.DeleteCartAsync(cart.Id);
+
+            if (await _unitOfWork.CommitAsync() <= 0)
             {
                 throw new Exception("Failed to create order.");
             }
 
+            // Map response
             var orderResponse = _mapper.Map<OrderResponse>(orderEntity);
             orderResponse.FirstName = user.FirstName;
             orderResponse.LastName = user.LastName;
@@ -93,6 +133,7 @@ namespace ECommerce.Core.Services.Implementations
             orderResponse.PhoneNumber = user.PhoneNumber;
             orderResponse.StoreName = store.Name;
             orderResponse.StorePhoneNumber = store.PhoneNumber;
+
             return orderResponse;
         }
         private string GenerateOrderNumber(string storeName)

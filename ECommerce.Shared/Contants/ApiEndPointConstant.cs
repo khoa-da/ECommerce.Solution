@@ -78,5 +78,13 @@ namespace ECommerce.Shared.Contants
             public const string MergeCartEndpoint = CartsEndpoint + "/merge";
             public const string CartItemEndpointByProductId = CartItemEndpoint + "/{productId}";
         }
+        public static class Order
+        {
+            public const string OrdersEndpoint = ApiEndpoint + "/orders";
+            public const string OrderEndpoint = OrdersEndpoint + "/{id}";
+            //public const string OrderByUserIdEndpoint = OrdersEndpoint + "/user/{userId}";
+            //public const string OrderByStoreIdEndpoint = OrdersEndpoint + "/store/{storeId}";
+            //public const string OrderByStatusEndpoint = OrdersEndpoint + "/status/{status}";
+        }
     }
 }

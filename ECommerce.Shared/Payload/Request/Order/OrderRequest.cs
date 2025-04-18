@@ -12,7 +12,6 @@ namespace ECommerce.Shared.Payload.Request.Order
         public Guid UserId { get; set; }
 
         public Guid? StoreId { get; set; }
-        public decimal TotalAmount { get; set; }
 
         public string? ShippingAddress { get; set; }
 
@@ -20,6 +19,5 @@ namespace ECommerce.Shared.Payload.Request.Order
         public string? PaymentMethod { get; set; }
 
         public string? ShippingMethod { get; set; }
-        public List<Guid>? ProductId { get; set; }
     }
 }
