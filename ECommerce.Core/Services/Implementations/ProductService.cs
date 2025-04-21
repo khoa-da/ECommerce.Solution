@@ -341,6 +341,26 @@ namespace ECommerce.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
+        public async Task<ProductDetailResponse> GetProductByProductIdAndStoreId(Guid productId, Guid storeId)
+        {
+            var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == productId, include: x => x.Include(x => x.Category).Include(x => x.ProductImages));
+            if (product == null)
+            {
+                throw new Exception("Product not found");
+            }
+            var storeProduct = await _unitOfWork.GetRepository<StoreProduct>().SingleOrDefaultAsync(predicate: x => x.ProductId == productId && x.StoreId == storeId);
+            if (storeProduct == null)
+            {
+                throw new Exception("StoreProduct not found");
+            }
+            var productResponse = _mapper.Map<ProductDetailResponse>(product);
+            productResponse.CategoryName = product.Category.Name;
+            productResponse.Stock = storeProduct.Stock;
+            productResponse.Price = storeProduct.Price.Value;
+            productResponse.ImageUrls = product.ProductImages.Select(x => x.ImageUrl).ToList();
+            return productResponse;
+        }
+
         public async Task<Cart> AddToCart(Guid productId, int quantity, Guid storeId)
         {
             // Validate the product exists

@@ -37,6 +37,14 @@ namespace ECommerce.API.Controllers
             var response = await _productService.GetById(id);
             return Ok(response);
         }
+        [HttpGet(ApiEndPointConstant.Product.ProductByStoreIdEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDetailResponse))]
+        public async Task<IActionResult> GetByStoreId(Guid storeId, Guid id)
+        {
+            var response = await _productService.GetProductByProductIdAndStoreId(id, storeId);
+            return Ok(response);
+        }
+
         [HttpGet(ApiEndPointConstant.Product.ProductsEndpoint)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductResponse>))]
         public async Task<IActionResult> GetAll(string? search, string? orderBy, int page = 1, int size = 10)

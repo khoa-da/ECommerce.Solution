@@ -20,6 +20,6 @@ namespace ECommerce.Core.Services.Interfaces
         Task<IPaginate<ProductResponse>> GetByBrand(string brand, int page, int size);
         Task<IPaginate<ProductResponse>> GetAll(string? search, string? orderBy, int page, int size);
         Task<Cart> AddToCart(Guid productId, int quantity, Guid storeId);
-
+        Task<ProductDetailResponse> GetProductByProductIdAndStoreId(Guid productId, Guid storeId);
     }
 }

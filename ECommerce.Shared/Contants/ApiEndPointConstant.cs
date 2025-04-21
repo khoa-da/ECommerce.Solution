@@ -44,6 +44,7 @@ namespace ECommerce.Shared.Contants
             public const string ProductByBrandIdEndpoint = ProductsEndpoint + "/brand/{brand}";
             public const string ImagesInProductEndpoint = ProductEndpoint + "/images";
             public const string AddToCartEndpoint = ProductsEndpoint + "/add-to-cart";
+            public const string ProductByStoreIdEndpoint = ProductEndpoint + "/store/{storeId}";
         }
         public static class Category
         {

@@ -4,46 +4,119 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ECommerce.Web</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thêm Font Awesome cho các biểu tượng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ECommerce.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ECommerce.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+        <nav class="bg-white border-b shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a asp-area="" asp-controller="Home" asp-action="Index" class="font-bold text-xl">
+                                <!-- Thêm biểu tượng vào logo -->
+                                <i class="fas fa-store text-blue-600 mr-2"></i>ECommerce.Web
+                            </a>
+                        </div>
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a asp-area="" asp-controller="Home" asp-action="Index" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-home mr-1"></i> Home
+                            </a>
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-shopping-bag mr-1"></i> Shop
+                            </a>
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-envelope mr-1"></i> Contact
+                            </a>
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-info-circle mr-1"></i> About
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+                        <!-- Thêm giỏ hàng với số lượng sản phẩm -->
+                        <a asp-area="" asp-controller="Cart" asp-action="Index" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium relative">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">0</span>
+                        </a>
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                            <i class="fas fa-sign-in-alt mr-1"></i> Login
+                        </a>
+                        <a asp-area="" asp-controller="Account" asp-action="Register" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                            <i class="fas fa-user-plus mr-1"></i> Register
+                        </a>
+                    </div>
+                    <div class="-mr-2 flex items-center sm:hidden">
+                        <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">Open main menu</span>
+                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile menu, show/hide based on menu state. -->
+            <div class="sm:hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-home mr-1"></i> Home
+                    </a>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-shopping-bag mr-1"></i> Shop
+                    </a>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-envelope mr-1"></i> Contact
+                    </a>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-info-circle mr-1"></i> About
+                    </a>
+                </div>
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="space-y-1">
+                        <!-- Thêm giỏ hàng vào menu di động -->
+                        <a asp-area="" asp-controller="Cart" asp-action="Index" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium flex items-center">
+                            <i class="fas fa-shopping-cart mr-2"></i> Giỏ hàng <span class="ml-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">0</span>
+                        </a>
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                            <i class="fas fa-sign-in-alt mr-1"></i> Login
+                        </a>
+                        <a asp-area="" asp-controller="Account" asp-action="Register" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                            <i class="fas fa-user-plus mr-1"></i> Register
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ECommerce.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        @RenderBody()
+    </main>
+
+    <footer class="bg-white border-t py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                &copy; 2025 - ECommerce.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-gray-600 hover:text-gray-800">Privacy</a>
+            </p>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        // Simple mobile menu toggle
+        document.querySelector('button[aria-controls="mobile-menu"]').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const expanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !expanded);
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>

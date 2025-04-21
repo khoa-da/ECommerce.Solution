@@ -1,8 +1,139 @@
-﻿@{
+﻿@model ECommerce.Shared.Paginate.Paginate<ECommerce.Shared.Payload.Response.Product.ProductResponse>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mx-auto px-4 py-10">
+    <!-- Store Selection Header -->
+    <header class="mb-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="mb-6 md:mb-0">
+                <h1 class="text-4xl font-bold text-blue-600">Fashion Store</h1>
+                <p class="text-lg text-gray-600 mt-2">Discover our latest collection of trendy products</p>
+            </div>
+            
+            <!-- Store Selection Form -->
+            <div class="w-full md:w-auto">
+                <form method="get" action="@Url.Action("Index", "Home")" class="flex flex-col sm:flex-row gap-2">
+                    <select id="storeSelect" name="storeId" class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 cursor-pointer">
+                        @if (ViewBag.Stores != null)
+                        {
+                            foreach (var store in ViewBag.Stores.Items)
+                            {
+                                if (ViewBag.StoreId?.ToString() == store.Id.ToString())
+                                {
+                                    <option value="@store.Id" selected>@store.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@store.Id">@store.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                    @* <div id="customStoreInput" class="w-full @(ViewBag.StoreId != "98ECB2CF-F3D0-47D5-B3B9-3F08B6921FC1" ? "" : "hidden")"> *@
+                    @*     <input type="text" id="customStoreId" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"  *@
+                    @*            placeholder="Enter Store ID" value="@(ViewBag.StoreId != "98ECB2CF-F3D0-47D5-B3B9-3F08B6921FC1" ? ViewBag.StoreId : "")"> *@
+                    @* </div> *@
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition duration-200">Load Products</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <span>@ViewBag.ErrorMessage</span>
+        </div>
+    }
+
+    <!-- Current Store Info -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-lg font-semibold text-blue-700">Currently browsing store: <span class="text-blue-900">@ViewBag.StoreId</span></h2>
+        </div>
+        <p class="text-blue-600 text-sm mt-1 ml-7">Found @Model.Total product(s) in this store</p>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            foreach (var product in Model.Items)
+            {
+                <a href="@Url.Action("Details", "Products", new { id = product.Id })" 
+   class="block bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:scale-[1.02]">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:scale-[1.02]">
+                    <div class="h-64 bg-gray-200 flex items-center justify-center">
+                        @if (!string.IsNullOrEmpty(product.MainImage))
+                        {
+                            <img src="@product.MainImage" alt="@product.Name" class="w-full h-full object-cover">
+                        }
+                        else
+                        {
+                            <div class="text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        }
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h2 class="text-lg font-semibold text-gray-800 truncate">@(string.IsNullOrEmpty(product.Name) ? "Product Name" : product.Name)</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">@product.CategoryName</span>
+                        </div>
+                        <div class="flex items-center text-gray-500 text-sm mb-3">
+                            <span>@product.Brand</span>
+                            <span class="mx-2">•</span>
+                            <span>Size: @product.Size</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">@(string.IsNullOrEmpty(product.Description) ? "No description available" : product.Description)</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-bold text-gray-900">@(product.Price > 0 ? $"${product.Price}" : "Price on request")</span>
+                            <span class="text-sm text-gray-500">Stock: @product.Stock</span>
+                        </div>
+                    </div>
+                </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="col-span-full text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <h3 class="text-xl font-medium text-gray-700">No products found</h3>
+                <p class="text-gray-500 mt-2">Try changing the store ID or check back later</p>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model?.TotalPages > 1)
+    {
+        <div class="flex justify-center mt-10">
+            <nav class="inline-flex rounded-md shadow">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a href="@Url.Action("Index", "Home", new { storeId = ViewBag.StoreId, page = i })" 
+                       class="@(i == ViewBag.CurrentPage 
+                            ? "bg-blue-600 text-white hover:bg-blue-700" 
+                            : "bg-white text-gray-700 hover:bg-gray-50") 
+                            relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium transition-colors duration-150">
+                        @i
+                    </a>
+                }
+            </nav>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    
+}

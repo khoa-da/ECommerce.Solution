@@ -1,7 +1,33 @@
+using ECommerce.Web.Services;
+using ECommerce.Web.Services.Implementations;
+using ECommerce.Web.Services.Interfaces;
+using ECommerce.Web.Utils;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient("ECommerceAPI", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7062/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
+builder.Services.AddScoped<IProductApiService, ProductApiService>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ApiClient>();
+builder.Services.AddScoped<HttpService>();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 var app = builder.Build();
 
@@ -17,6 +43,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthorization();
 
