@@ -9,11 +9,6 @@ using ECommerce.Shared.Payload.Request.ProductImage;
 using ECommerce.Shared.Payload.Response.ProductImage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -147,7 +142,7 @@ namespace ECommerce.Core.Services.Implementations
         public async Task<ProductImageResponse> SetDisplayOrder(Guid id, int displayOrder)
         {
             var repo = _unitOfWork.GetRepository<ProductImage>();
-            var image = await repo.SingleOrDefaultAsync( predicate: x => x.Id == id);
+            var image = await repo.SingleOrDefaultAsync(predicate: x => x.Id == id);
             if (image == null)
             {
                 throw new EntityNotFoundException("Product image not found.");

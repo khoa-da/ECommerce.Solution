@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
-using Azure.Core;
 using ECommerce.Core.Exceptions;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
@@ -15,11 +13,6 @@ using ECommerce.Shared.Payload.Response.ProductImage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -170,7 +163,7 @@ namespace ECommerce.Core.Services.Implementations
 
             if (!string.IsNullOrEmpty(orderBy))
             {
-                switch(orderBy.ToLower())
+                switch (orderBy.ToLower())
                 {
                     case "name_asc":
                         orderByFunc = q => q.OrderBy(x => x.Name);
@@ -346,12 +339,12 @@ namespace ECommerce.Core.Services.Implementations
             var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == productId, include: x => x.Include(x => x.Category).Include(x => x.ProductImages));
             if (product == null)
             {
-                throw new Exception("Product not found");
+                throw new EntityNotFoundException("Product not found");
             }
             var storeProduct = await _unitOfWork.GetRepository<StoreProduct>().SingleOrDefaultAsync(predicate: x => x.ProductId == productId && x.StoreId == storeId);
             if (storeProduct == null)
             {
-                throw new Exception("StoreProduct not found");
+                throw new EntityNotFoundException("StoreProduct not found");
             }
             var productResponse = _mapper.Map<ProductDetailResponse>(product);
             productResponse.CategoryName = product.Category.Name;

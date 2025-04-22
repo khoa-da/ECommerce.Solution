@@ -1,6 +1,3 @@
-using ECommerce.Web.Services;
-using ECommerce.Web.Services.Implementations;
-using ECommerce.Web.Services.Interfaces;
 using ECommerce.Web.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,10 +11,9 @@ builder.Services.AddHttpClient("ECommerceAPI", client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
-builder.Services.AddScoped<IProductApiService, ProductApiService>();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<ApiClient>();
+
 builder.Services.AddScoped<HttpService>();
 
 builder.Services.AddDistributedMemoryCache();

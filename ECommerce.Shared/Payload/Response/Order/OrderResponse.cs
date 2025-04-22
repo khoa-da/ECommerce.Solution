@@ -1,9 +1,4 @@
 ﻿using ECommerce.Shared.Payload.Response.OrderItem;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Shared.Payload.Response.Order
 {
@@ -21,7 +16,7 @@ namespace ECommerce.Shared.Payload.Response.Order
 
         public string? StorePhoneNumber { get; set; }
 
-        public string? OrderNumber { get; set; } 
+        public string? OrderNumber { get; set; }
 
         public DateTime OrderDate { get; set; }
 

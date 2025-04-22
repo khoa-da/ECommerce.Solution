@@ -1,11 +1,6 @@
 ﻿using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.ProductImage;
 using ECommerce.Shared.Payload.Response.ProductImage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Interfaces
 {

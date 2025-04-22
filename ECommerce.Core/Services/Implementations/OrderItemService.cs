@@ -9,11 +9,6 @@ using ECommerce.Shared.Payload.Response.OrderItem;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -40,7 +35,7 @@ namespace ECommerce.Core.Services.Implementations
 
         public async Task<OrderItemResponse> GetById(Guid id)
         {
-            if(id == Guid.Empty)
+            if (id == Guid.Empty)
                 throw new ArgumentNullException(nameof(id), "Id cannot be empty.");
             var orderItem = await _unitOfWork.GetRepository<OrderItem>().SingleOrDefaultAsync(predicate: x => x.Id == id);
             if (orderItem == null)
@@ -55,7 +50,7 @@ namespace ECommerce.Core.Services.Implementations
             orderItemResponse.Sku = orderItem.Product.Sku;
             orderItemResponse.Tags = orderItem.Product.Tags;
             orderItemResponse.Material = orderItem.Product.Material;
-            
+
             return orderItemResponse;
 
         }
@@ -67,7 +62,7 @@ namespace ECommerce.Core.Services.Implementations
             Func<IQueryable<OrderItem>, IOrderedQueryable<OrderItem>> orderByFunc = x => x.OrderByDescending(x => x.Quantity);
             if (!string.IsNullOrEmpty(orderBy))
             {
-                switch(orderBy.ToLower())
+                switch (orderBy.ToLower())
                 {
                     case "quantity":
                         orderByFunc = x => x.OrderBy(x => x.Quantity);
@@ -90,7 +85,7 @@ namespace ECommerce.Core.Services.Implementations
 
             if (orderId == Guid.Empty)
                 throw new ArgumentNullException(nameof(orderId), "OrderId cannot be empty.");
-            
+
             var orderItems = await _unitOfWork.GetRepository<OrderItem>().GetPagingListAsync(
                 selector: x => new OrderItemResponse
                 {
@@ -120,7 +115,7 @@ namespace ECommerce.Core.Services.Implementations
                 throw new EntityNotFoundException($"OrderItem with orderId {orderId} not found.");
             var orderItemResponse = _mapper.Map<IPaginate<OrderItemResponse>>(orderItems);
             return orderItemResponse;
-            
+
         }
 
         public Task<OrderItemResponse> Update(Guid id, OrderItemRequest orderItem)

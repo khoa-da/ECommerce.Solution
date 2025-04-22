@@ -9,12 +9,7 @@ using ECommerce.Shared.Payload.Request.Category;
 using ECommerce.Shared.Payload.Response.Category;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {

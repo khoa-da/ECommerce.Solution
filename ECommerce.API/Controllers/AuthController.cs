@@ -2,7 +2,6 @@
 using ECommerce.Shared.Contants;
 using ECommerce.Shared.Payload.Request.Auth;
 using ECommerce.Shared.Payload.Response.Auth;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers

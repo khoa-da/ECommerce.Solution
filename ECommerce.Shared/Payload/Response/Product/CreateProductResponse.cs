@@ -1,9 +1,4 @@
 ﻿using ECommerce.Shared.Payload.Response.ProductImage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Shared.Payload.Response.Product
 {
@@ -39,6 +34,6 @@ namespace ECommerce.Shared.Payload.Response.Product
         public string? Material { get; set; }
 
         public string? Status { get; set; }
-        public List<ProductImageResponse>? ProductImageResponses { get; set; } 
+        public List<ProductImageResponse>? ProductImageResponses { get; set; }
     }
 }

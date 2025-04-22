@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ECommerce.Shared.Payload.Request.Product
+﻿namespace ECommerce.Shared.Payload.Request.Product
 {
     public class AddToCartProductRequest
     {

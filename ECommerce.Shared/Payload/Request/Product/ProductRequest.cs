@@ -1,10 +1,4 @@
 ﻿using ECommerce.Shared.Enums;
-using ECommerce.Shared.Payload.Request.ProductImage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Shared.Payload.Request.Product
 {

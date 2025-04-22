@@ -3,9 +3,7 @@ using ECommerce.Shared.Contants;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.User;
 using ECommerce.Shared.Payload.Response.User;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace ECommerce.API.Controllers
 {
@@ -26,7 +24,7 @@ namespace ECommerce.API.Controllers
             var userResponse = await _userService.CreateUser(createUserRequest);
             return CreatedAtAction(nameof(CreateNewUser), new { id = userResponse.Id }, userResponse);
         }
-        
+
         [HttpGet(ApiEndPointConstant.User.UserEndpoint)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponse))]
         public async Task<IActionResult> GetUserById(Guid id)

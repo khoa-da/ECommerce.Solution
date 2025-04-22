@@ -10,11 +10,6 @@ using ECommerce.Shared.Payload.Response.Product;
 using ECommerce.Shared.Payload.Response.Store;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -35,7 +30,7 @@ namespace ECommerce.Core.Services.Implementations
 
             await _unitOfWork.GetRepository<Store>().InsertAsync(store);
 
-            if(request.ProductIds != null && request.ProductIds.Count > 0)
+            if (request.ProductIds != null && request.ProductIds.Count > 0)
             {
                 foreach (var productId in request.ProductIds)
                 {
@@ -66,7 +61,7 @@ namespace ECommerce.Core.Services.Implementations
                 storeResponse.Products = await GetStoreProducts(store.Id);
             }
 
-            return  storeResponse;
+            return storeResponse;
         }
         private async Task<List<ProductResponse>> GetStoreProducts(Guid storeId)
         {
@@ -132,7 +127,7 @@ namespace ECommerce.Core.Services.Implementations
                 page: page,
                 size: size
             );
-            return result;    
+            return result;
         }
 
         public async Task<StoreResponse> GetById(Guid id)
@@ -144,7 +139,7 @@ namespace ECommerce.Core.Services.Implementations
             }
             var storeResponse = _mapper.Map<StoreResponse>(store);
             return storeResponse;
-            
+
         }
 
         public async Task<StoreResponse> Update(Guid id, StoreRequest request)

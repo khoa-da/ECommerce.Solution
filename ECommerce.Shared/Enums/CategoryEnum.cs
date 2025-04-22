@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ECommerce.Shared.Enums
+﻿namespace ECommerce.Shared.Enums
 {
     public class CategoryEnum
     {
@@ -14,6 +8,6 @@ namespace ECommerce.Shared.Enums
             Inactive = 2,
             Deleted = 3
         }
-       
+
     }
 }

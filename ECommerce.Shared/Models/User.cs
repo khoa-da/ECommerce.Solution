@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ECommerce.Shared.Models;
+﻿namespace ECommerce.Shared.Models;
 
 public partial class User
 {

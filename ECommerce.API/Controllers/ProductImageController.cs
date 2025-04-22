@@ -3,10 +3,7 @@ using ECommerce.Shared.Contants;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.ProductImage;
 using ECommerce.Shared.Payload.Response.ProductImage;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace ECommerce.API.Controllers
 {

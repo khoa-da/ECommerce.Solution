@@ -1,19 +1,13 @@
 ﻿using AutoMapper;
-using Azure.Messaging;
-using ECommerce.Infrastructure.Utils;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
+using ECommerce.Infrastructure.Utils;
 using ECommerce.Shared.Models;
 using ECommerce.Shared.Payload.Request.Auth;
 using ECommerce.Shared.Payload.Response.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -82,7 +76,7 @@ namespace ECommerce.Core.Services.Implementations
             }
 
             return loginResponse;
-            
+
         }
 
         public async Task<LoginResponse> RefreshToken(RefreshTokenRequest refreshTokenRequest)

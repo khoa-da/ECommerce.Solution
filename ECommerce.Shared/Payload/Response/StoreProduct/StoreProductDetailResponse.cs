@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ECommerce.Shared.Payload.Response.StoreProduct
+﻿namespace ECommerce.Shared.Payload.Response.StoreProduct
 {
     public class StoreProductDetailResponse
     {

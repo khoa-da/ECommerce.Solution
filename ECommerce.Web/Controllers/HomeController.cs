@@ -1,12 +1,10 @@
-using System.Diagnostics;
+using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Response.Product;
-using System.Net.Http;
-using System.Text.Json;
+using ECommerce.Shared.Payload.Response.Store;
 using ECommerce.Web.Models;
 using ECommerce.Web.Utils;
 using Microsoft.AspNetCore.Mvc;
-using ECommerce.Shared.Paginate;
-using ECommerce.Shared.Payload.Response.Store;
+using System.Diagnostics;
 
 namespace ECommerce.Web.Controllers
 {

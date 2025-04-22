@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-namespace ECommerce.Shared.Payload.Request.Order
+﻿namespace ECommerce.Shared.Payload.Request.Order
 {
     public class OrderRequest
     {
         public Guid UserId { get; set; }
 
-        public Guid? StoreId { get; set; }
+        //public Guid? StoreId { get; set; }
 
         public string? ShippingAddress { get; set; }
 

@@ -10,11 +10,6 @@ using ECommerce.Shared.Payload.Request.User;
 using ECommerce.Shared.Payload.Response.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -45,7 +40,7 @@ namespace ECommerce.Core.Services.Implementations
             newUser.Status = UserEnum.Status.Active.ToString();
 
             await _unitOfWork.GetRepository<User>().InsertAsync(newUser);
-            if(await _unitOfWork.CommitAsync() <= 0)
+            if (await _unitOfWork.CommitAsync() <= 0)
             {
                 throw new DataConflictException("Failed to create user.");
             }
@@ -57,7 +52,7 @@ namespace ECommerce.Core.Services.Implementations
         {
             search = search?.Trim().ToLower();
 
-            Func<IQueryable<User>, IOrderedQueryable<User>> orderByFunc = users => users.OrderByDescending(u => u.RegisteredDate); 
+            Func<IQueryable<User>, IOrderedQueryable<User>> orderByFunc = users => users.OrderByDescending(u => u.RegisteredDate);
 
             if (!string.IsNullOrEmpty(orderBy))
             {
@@ -135,11 +130,11 @@ namespace ECommerce.Core.Services.Implementations
 
         public async Task<UserResponse> GetById(Guid id)
         {
-            if(id == Guid.Empty)
+            if (id == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(id), "Id cannot be empty.");
             }
-           
+
             var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.Id == id);
             if (user == null)
             {

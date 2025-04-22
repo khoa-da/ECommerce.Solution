@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using CloudinaryDotNet.Actions;
 using ECommerce.Core.Exceptions;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
@@ -12,11 +11,6 @@ using ECommerce.Shared.Payload.Response.StoreProduct;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -239,7 +233,7 @@ namespace ECommerce.Core.Services.Implementations
 
                 // Trừ kho tổng
                 product.Stock -= stockDifference;
-                 productRepo.UpdateAsync(product);
+                productRepo.UpdateAsync(product);
             }
             else if (stockDifference < 0)
             {

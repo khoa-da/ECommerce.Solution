@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ECommerce.Shared.Paginate;
 using Microsoft.EntityFrameworkCore.Query;
-using ECommerce.Shared.Paginate;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;   
 
 namespace ECommerce.Infrastructure.Repositories.Interfaces
 {

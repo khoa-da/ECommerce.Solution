@@ -2,7 +2,6 @@
 using ECommerce.Shared.Contants;
 using ECommerce.Shared.Payload.Request.StoreProduct;
 using ECommerce.Shared.Payload.Response.StoreProduct;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -47,7 +46,7 @@ namespace ECommerce.API.Controllers
             var response = await _storeProductService.DeleteStoreProduct(storeId, productId);
             return Ok(response);
         }
-            
+
 
     }
 }

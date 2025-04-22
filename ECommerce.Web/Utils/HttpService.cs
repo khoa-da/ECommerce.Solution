@@ -46,7 +46,7 @@ namespace ECommerce.Web.Utils
 
             var response = await httpClient.GetAsync(url);
             return await DeserializeResponse<T>(response);
-            }
+        }
 
         // POST request
         public async Task<T> PostAsync<T>(string endpoint, object data, string? token = null, Dictionary<string, string>? queryParams = null)

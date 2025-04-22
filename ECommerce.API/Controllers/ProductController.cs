@@ -6,7 +6,6 @@ using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Product;
 using ECommerce.Shared.Payload.Response.Product;
 using ECommerce.Shared.Payload.Response.ProductImage;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers

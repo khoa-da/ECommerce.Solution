@@ -1,19 +1,12 @@
 ﻿using AutoMapper;
-using CloudinaryDotNet;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
 using ECommerce.Shared.BusinessModels;
 using ECommerce.Shared.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -30,7 +23,7 @@ namespace ECommerce.Core.Services.Implementations
         public CartService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<CartService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor, IConnectionMultiplexer redis) : base(unitOfWork, logger, mapper, httpContextAccessor)
         {
             _redis = redis;
-            
+
         }
 
         public async Task<Cart> AddToCartAsync(string cartId, CartItem item)

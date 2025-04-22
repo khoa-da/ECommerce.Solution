@@ -49,7 +49,7 @@ namespace ECommerce.Core.Services
         protected void SetCookie(string cookieName, string value, TimeSpan expiry)
         {
             _httpContextAccessor?.HttpContext?.Response.Cookies.Append(
-                
+
                 cookieName,
                 value,
                 new CookieOptions
@@ -77,5 +77,5 @@ namespace ECommerce.Core.Services
 
 
     }
-    
+
 }

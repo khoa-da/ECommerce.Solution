@@ -1,11 +1,6 @@
 ﻿using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Order;
 using ECommerce.Shared.Payload.Response.Order;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Core.Services.Interfaces
 {
@@ -19,7 +14,7 @@ namespace ECommerce.Core.Services.Interfaces
         Task<IPaginate<OrderResponse>> GetByUserId(Guid userId, string? search, string? orderBy, int page, int size);
         Task<OrderResponse> ChangeStatus(Guid id, string status);
 
+        Task<OrderResponse> CreateV2(OrderRequest order);
 
     }
 }
-    

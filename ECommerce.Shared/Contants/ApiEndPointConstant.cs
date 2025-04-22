@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ECommerce.Shared.Contants
+﻿namespace ECommerce.Shared.Contants
 {
     public static class ApiEndPointConstant
     {
@@ -64,7 +58,7 @@ namespace ECommerce.Shared.Contants
         {
             public const string StoreProductsEndpoint = ApiEndpoint + "/store-products";
             public const string StoreProductEndpoint = StoreProductsEndpoint + "/{storeId}/{productId}";
-          
+
         }
         public static class OrderItem
         {
