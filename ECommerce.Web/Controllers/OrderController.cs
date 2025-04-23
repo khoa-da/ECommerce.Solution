@@ -73,12 +73,7 @@ namespace ECommerce.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(CheckoutViewModel model)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    // If there are validation errors, return to checkout page with error messages
-            //    TempData["Error"] = "Please fill in all required fields correctly.";
-            //    return View("Checkout", model);
-            //}
+
 
             try
             {
@@ -120,7 +115,8 @@ namespace ECommerce.Web.Controllers
                     ShippingAddress = fullAddress,
                     PaymentMethod = model.PaymentMethod,
                     ShippingMethod = model.ShippingMethod,
-                    CartItems = cartItems
+                    CartItems = cartItems,
+                    Notes = model.Notes
                 };
 
 
@@ -147,6 +143,27 @@ namespace ECommerce.Web.Controllers
                 TempData["Error"] = $"An error occurred: {ex.Message}";
                 return View("Checkout", model);
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> OrderHistory(Guid userId)
+        {
+            //try
+            //{
+            //    // Get order history for the user
+            //    var orders = await _httpService.GetAsync<List<OrderResponse>>($"user/{userId}/order");
+            //    if (orders == null || orders.Count == 0)
+            //    {
+            //        TempData["Error"] = "No orders found.";
+            //        return RedirectToAction("Index", "Home");
+            //    }
+            //    return View(orders);
+            //}
+            //catch (Exception ex)
+            //{
+            //    TempData["Error"] = $"An error occurred: {ex.Message}";
+            //    return RedirectToAction("Index", "Home");
+            //}
+            return null;
         }
 
         [HttpGet]

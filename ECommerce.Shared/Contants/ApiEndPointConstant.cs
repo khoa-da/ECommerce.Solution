@@ -22,6 +22,7 @@
             public const string UsersEndpoint = ApiEndpoint + "/users";
             public const string UserEndpoint = UsersEndpoint + "/{id}";
             public const string UserByFieldEndpoint = UsersEndpoint + "/{field}/{value}";
+            public const string OrderByUserIdEndpoint = UserEndpoint + "/order";
         }
         public static class ProductImage
         {

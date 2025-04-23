@@ -2,6 +2,7 @@
 using ECommerce.Shared.Contants;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.User;
+using ECommerce.Shared.Payload.Response.Order;
 using ECommerce.Shared.Payload.Response.User;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,11 @@ namespace ECommerce.API.Controllers
     public class UserController : BaseController<UserController>
     {
         private readonly IUserService _userService;
-        public UserController(ILogger<UserController> logger, IUserService userService) : base(logger)
+        private readonly IOrderService _orderService;
+        public UserController(ILogger<UserController> logger, IUserService userService, IOrderService oderService) : base(logger)
         {
             _userService = userService;
+            _orderService = oderService;
         }
 
         [HttpPost(ApiEndPointConstant.User.UsersEndpoint)]
@@ -50,6 +53,13 @@ namespace ECommerce.API.Controllers
             return Ok(userResponse);
         }
 
+        [HttpGet(ApiEndPointConstant.User.OrderByUserIdEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<OrderResponse>))]
+        public async Task<IActionResult> GetOrdersByUserId(Guid id, string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var orderResponse = await _orderService.GetAllByUserId(id, search, orderBy, page, size);
+            return Ok(orderResponse);
 
+        }
     }
 }

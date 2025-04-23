@@ -1,0 +1,228 @@
+﻿@model ECommerce.Shared.Payload.Response.Order.OrderResponse
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-5 text-gray-500 text-sm">
+            <a href="/" class="hover:text-indigo-600">Home</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">Order Confirmation</span>
+        </nav>
+
+        <!-- Success Message -->
+        <div class="bg-green-50 border-l-4 border-green-500 p-8 mb-8 text-center rounded-lg shadow-md">
+            <div class="mb-4 text-green-600">
+                <i class="fas fa-check-circle text-6xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Thank You for Your Order!</h1>
+            <p class="text-gray-600 mb-2">Your order has been placed successfully.</p>
+            <p class="text-gray-600">Order Number: <span class="font-medium">@Model.OrderNumber</span></p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-info-circle mr-2 text-indigo-600"></i> Order Details
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Order Information</h3>
+                        <div class="text-sm">
+                            <p><span class="font-medium">Order Date:</span> @Model.OrderDate.ToString("MMMM dd, yyyy")</p>
+                            <p>
+                                <span class="font-medium">Order Status:</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    @Model.OrderStatus
+                                </span>
+                            </p>
+                            <p><span class="font-medium">Payment Method:</span> @Model.PaymentMethod</p>
+                            <p>
+                                <span class="font-medium">Payment Status:</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    @Model.PaymentStatus
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Customer Information</h3>
+                        <div class="text-sm">
+                            <p><span class="font-medium">Name:</span> @Model.FirstName @Model.LastName</p>
+                            <p><span class="font-medium">Email:</span> @Model.Email</p>
+                            <p><span class="font-medium">Phone:</span> @Model.PhoneNumber</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Shipping Address</h3>
+                        <div class="text-sm">
+                            <p>@Model.ShippingAddress</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Store Information</h3>
+                        <div class="text-sm">
+                            <p><span class="font-medium">Store Name:</span> @Model.StoreName</p>
+                            <p><span class="font-medium">Store Phone:</span> @Model.StorePhoneNumber</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-shopping-bag mr-2 text-indigo-600"></i> Order Items
+                </h2>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Price
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Total
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">@item.ProductName</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">$@item.Price</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">@item.Quantity</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">$@item.TotalAmount</div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-gray-50">
+                                <td colspan="3" class="px-6 py-4 whitespace-nowrap text-right font-medium">
+                                    Subtotal:
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium">
+                                    $@Model.TotalAmount
+                                </td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td colspan="3" class="px-6 py-4 whitespace-nowrap text-right font-medium">
+                                    Shipping:
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium">
+                                    $0.00
+                                </td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td colspan="3" class="px-6 py-4 whitespace-nowrap text-right font-bold">
+                                    Total:
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap font-bold">
+                                    $@Model.TotalAmount
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <a href="/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-home mr-2"></i> Continue Shopping
+            </a>
+            <div class="flex gap-4">
+                <button onclick="printOrder()" class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-print mr-2"></i> Print Order
+                </button>
+                <a href="/account/orders" class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-list-alt mr-2"></i> View All Orders
+                </a>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-question-circle mr-2 text-indigo-600"></i> Need Help?
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-envelope text-xl text-indigo-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-gray-900">Contact Support</h3>
+                            <p class="text-sm text-gray-500">
+                                Email us at <a href="mailto:support@yourstore.com" class="text-indigo-600 hover:text-indigo-500">support@yourstore.com</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-phone-alt text-xl text-indigo-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-gray-900">Call Us</h3>
+                            <p class="text-sm text-gray-500">
+                                Call us at <a href="tel:+1234567890" class="text-indigo-600 hover:text-indigo-500">+1 (234) 567-890</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-question text-xl text-indigo-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-gray-900">FAQs</h3>
+                            <p class="text-sm text-gray-500">
+                                Visit our <a href="/faq" class="text-indigo-600 hover:text-indigo-500">FAQ page</a> for common questions
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print functionality -->
+    <script>
+        function printOrder() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

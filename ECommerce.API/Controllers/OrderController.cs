@@ -30,5 +30,12 @@ namespace ECommerce.API.Controllers
             var response = await _orderService.CreateV2(request);
             return CreatedAtAction(nameof(Create), new { id = response.Id }, response);
         }
+        [HttpGet(ApiEndPointConstant.Order.OrderEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderResponse))]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var response = await _orderService.GetById(id);
+            return Ok(response);
+        }
     }
 }

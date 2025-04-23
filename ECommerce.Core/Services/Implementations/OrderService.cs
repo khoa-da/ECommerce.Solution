@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ECommerce.Core.Exceptions;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
 using ECommerce.Shared.BusinessModels;
@@ -9,7 +10,10 @@ using ECommerce.Shared.Payload.Request.Order;
 using ECommerce.Shared.Payload.Response.Order;
 using ECommerce.Shared.Payload.Response.OrderItem;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
+
 
 namespace ECommerce.Core.Services.Implementations
 {
@@ -155,9 +159,46 @@ namespace ECommerce.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<OrderResponse> GetById(Guid id)
+        public async Task<OrderResponse> GetById(Guid id)
         {
-            throw new NotImplementedException();
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id), "Order ID cannot be empty.");
+            }
+            var order = await _unitOfWork.GetRepository<Order>().SingleOrDefaultAsync(
+                predicate: x => x.Id == id,
+                include: x => x.Include(o => o.OrderItems).ThenInclude(oi => oi.Product).Include(u => u.User).Include(s => s.Store));
+            if (order == null)
+            {
+                throw new EntityNotFoundException("Order not found.");
+            }
+            var orderResponse = _mapper.Map<OrderResponse>(order);
+            orderResponse.FirstName = order.User.FirstName;
+            orderResponse.LastName = order.User.LastName;
+            orderResponse.Email = order.User.Email;
+            orderResponse.PhoneNumber = order.User.PhoneNumber;
+            orderResponse.StoreName = order.Store.Name;
+            orderResponse.StorePhoneNumber = order.Store.PhoneNumber;
+            orderResponse.OrderItems = order.OrderItems.Select(oi => new OrderItemResponse
+            {
+                Id = oi.Id,
+                OrderId = oi.OrderId,
+                ProductId = oi.ProductId,
+                ProductName = oi.Product.Name,
+                CategoryId = oi.Product.CategoryId,
+                CategoryName = oi.Product.Name,
+                Gender = oi.Product.Gender,
+                Size = oi.Product.Size,
+                Brand = oi.Product.Brand,
+                Sku = oi.Product.Sku,
+                Tags = oi.Product.Tags,
+                Material = oi.Product.Material,
+                Quantity = oi.Quantity,
+                Price = oi.Price,
+                TotalAmount = oi.TotalAmount
+            }).ToList();
+            
+            return orderResponse;
         }
 
         public Task<IPaginate<OrderResponse>> GetByUserId(Guid userId, string? search, string? orderBy, int page, int size)
@@ -170,26 +211,7 @@ namespace ECommerce.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
-        // Method to get cart items from cookies instead of session
-        private List<CartItem> GetCartItemsFromCookies()
-        {
-            const string CartCookieKey = "Cart";
-
-            if (_httpContextAccessor.HttpContext.Request.Cookies.TryGetValue(CartCookieKey, out string cartJson))
-            {
-                try
-                {
-                    return System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartJson);
-                }
-                catch
-                {
-                    // If there's an error when deserializing, return a new cart
-                    return new List<CartItem>();
-                }
-            }
-
-            return new List<CartItem>();
-        }
+      
 
         // Method to clear cart from cookies
         private void ClearCartCookies()
@@ -331,6 +353,92 @@ namespace ECommerce.Core.Services.Implementations
             return orderResponse;
         }
 
+      
+
+        public async Task<IPaginate<OrderResponse>> GetAllByUserId(Guid userId, string? search, string? orderBy, int page, int size)
+        {
+            //Validate userId
+            if(userId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(userId), "User ID cannot be empty.");
+            }
+            
+            //Find user by userId
+            var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: x => x.Id == userId);
+            if (user == null)
+            {
+                throw new EntityNotFoundException("User not found.");
+            }
+            search = search?.Trim().ToLower();
+            Func<IQueryable<Order>, IOrderedQueryable<Order>> orderByFunc = x => x.OrderByDescending(o => o.OrderDate);
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                switch (orderBy.ToLower())
+                {
+                    case "order_date_asc":
+                        orderByFunc = x => x.OrderBy(o => o.OrderDate);
+                        break;
+                    case "order_date_desc":
+                        orderByFunc = x => x.OrderByDescending(o => o.OrderDate);
+                        break;
+                    case "total_amount_asc":
+                        orderByFunc = x => x.OrderBy(o => o.TotalAmount);
+                        break;
+                    case "total_amount_desc":
+                        orderByFunc = x => x.OrderByDescending(o => o.TotalAmount);
+                        break;
+                }
+            }
+            var orderItemResponse = new List<OrderItemResponse>();
+            var orders = await _unitOfWork.GetRepository<Order>().GetPagingListAsync(
+                selector: x => new OrderResponse
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    FirstName = x.User.FirstName,
+                    LastName = x.User.LastName,
+                    Email = x.User.Email,
+                    PhoneNumber = x.User.PhoneNumber,
+                    StoreId = x.StoreId,
+                    StoreName = x.Store.Name,
+                    StorePhoneNumber = x.Store.PhoneNumber,
+                    OrderNumber = x.OrderNumber,
+                    OrderDate = x.OrderDate,
+                    TotalAmount = x.TotalAmount,
+                    PaymentStatus = x.PaymentStatus,
+                    OrderStatus = x.OrderStatus,
+                    ShippingAddress = x.ShippingAddress,
+                    PaymentMethod = x.PaymentMethod,
+                    ShippingMethod = x.ShippingMethod,
+                    OrderItems = x.OrderItems.Select(oi => new OrderItemResponse
+                    {
+                        Id = oi.Id,
+                        OrderId = oi.OrderId,
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        CategoryId = oi.Product.CategoryId,
+                        CategoryName = oi.Product.Name,
+                        Gender = oi.Product.Gender,
+                        Size = oi.Product.Size,
+                        Brand = oi.Product.Brand,
+                        Sku = oi.Product.Sku,
+                        Tags = oi.Product.Tags,
+                        Material = oi.Product.Material,
+                        Quantity = oi.Quantity,
+                        Price = oi.Price,
+                        TotalAmount = oi.TotalAmount
+                    }).ToList(),
+                    Notes = x.Notes
+                },
+                predicate: x => x.UserId == userId && (string.IsNullOrEmpty(search) || x.OrderNumber.ToLower().Contains(search)),
+                orderBy: orderByFunc,
+                include: x => x.Include(o => o.OrderItems).ThenInclude(oi => oi.Product),
+                page: page,
+                size: size
+                );
+
+            return orders;
+        }
 
 
     }
