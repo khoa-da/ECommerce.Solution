@@ -33,5 +33,6 @@ namespace ECommerce.Shared.Payload.Response.Order
 
         public string? ShippingMethod { get; set; }
         public List<OrderItemResponse>? OrderItems { get; set; }
+        public string? Notes { get; set; }
     }
 }

@@ -4,40 +4,11 @@
 }
 
 <div class="container mx-auto px-4 py-10">
-    <!-- Store Selection Header -->
+    <!-- Main Header -->
     <header class="mb-12">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div class="mb-6 md:mb-0">
-                <h1 class="text-4xl font-bold text-blue-600">Fashion Store</h1>
-                <p class="text-lg text-gray-600 mt-2">Discover our latest collection of trendy products</p>
-            </div>
-            
-            <!-- Store Selection Form -->
-            <div class="w-full md:w-auto">
-                <form method="get" action="@Url.Action("Index", "Home")" class="flex flex-col sm:flex-row gap-2">
-                    <select id="storeSelect" name="storeId" class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 cursor-pointer">
-                        @if (ViewBag.Stores != null)
-                        {
-                            foreach (var store in ViewBag.Stores.Items)
-                            {
-                                if (ViewBag.StoreId?.ToString() == store.Id.ToString())
-                                {
-                                    <option value="@store.Id" selected>@store.Name</option>
-                                }
-                                else
-                                {
-                                    <option value="@store.Id">@store.Name</option>
-                                }
-                            }
-                        }
-                    </select>
-                    @* <div id="customStoreInput" class="w-full @(ViewBag.StoreId != "98ECB2CF-F3D0-47D5-B3B9-3F08B6921FC1" ? "" : "hidden")"> *@
-                    @*     <input type="text" id="customStoreId" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"  *@
-                    @*            placeholder="Enter Store ID" value="@(ViewBag.StoreId != "98ECB2CF-F3D0-47D5-B3B9-3F08B6921FC1" ? ViewBag.StoreId : "")"> *@
-                    @* </div> *@
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition duration-200">Load Products</button>
-                </form>
-            </div>
+        <div class="flex flex-col justify-center items-center text-center">
+            <h1 class="text-4xl font-bold text-blue-600">Fashion Store</h1>
+            <p class="text-lg text-gray-600 mt-2">Discover our latest collection of trendy products</p>
         </div>
     </header>
 
@@ -48,15 +19,14 @@
         </div>
     }
 
-    <!-- Current Store Info -->
+    <!-- Products Info -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-        <div class="flex items-center">
+        <div class="flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
             </svg>
-            <h2 class="text-lg font-semibold text-blue-700">Currently browsing store: <span class="text-blue-900">@ViewBag.StoreId</span></h2>
+            <p class="text-blue-600 text-sm">Showing <span class="font-bold">@Model.Total</span> product(s)</p>
         </div>
-        <p class="text-blue-600 text-sm mt-1 ml-7">Found @Model.Total product(s) in this store</p>
     </div>
 
     <!-- Products Grid -->
@@ -65,9 +35,8 @@
         {
             foreach (var product in Model.Items)
             {
-                <a href="@Url.Action("Details", "Products", new { id = product.Id})" 
-   class="block bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:scale-[1.02]">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:scale-[1.02]">
+                <a href="@Url.Action("Details", "Products", new { id = product.Id})"
+                   class="block bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:scale-[1.02]">
                     <div class="h-64 bg-gray-200 flex items-center justify-center">
                         @if (!string.IsNullOrEmpty(product.MainImage))
                         {
@@ -98,7 +67,6 @@
                             <span class="text-sm text-gray-500">Stock: @product.Stock</span>
                         </div>
                     </div>
-                </div>
                 </a>
             }
         }
@@ -109,7 +77,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 <h3 class="text-xl font-medium text-gray-700">No products found</h3>
-                <p class="text-gray-500 mt-2">Try changing the store ID or check back later</p>
+                <p class="text-gray-500 mt-2">Please check back later</p>
             </div>
         }
     </div>
@@ -121,10 +89,10 @@
             <nav class="inline-flex rounded-md shadow">
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    <a href="@Url.Action("Index", "Home", new { storeId = ViewBag.StoreId, page = i })" 
-                       class="@(i == ViewBag.CurrentPage 
-                            ? "bg-blue-600 text-white hover:bg-blue-700" 
-                            : "bg-white text-gray-700 hover:bg-gray-50") 
+                    <a href="@Url.Action("Index", "Home", new { page = i })"
+                       class="@(i == ViewBag.CurrentPage
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "bg-white text-gray-700 hover:bg-gray-50")
                             relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium transition-colors duration-150">
                         @i
                     </a>
@@ -133,7 +101,3 @@
         </div>
     }
 </div>
-
-@section Scripts {
-    
-}

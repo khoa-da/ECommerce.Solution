@@ -9,19 +9,20 @@ namespace ECommerce.Web.Controllers
     public class CartController : Controller
     {
         private readonly HttpService _httpService;
-        private const string CartSessionKey = "Cart";
+        private const string CartCookieKey = "Cart";
+        private const int CookieExpirationDays = 30; // Cookie sẽ tồn tại trong 30 ngày
 
         public CartController(HttpService httpService)
         {
             _httpService = httpService;
         }
+
         [HttpGet]
         public IActionResult Index()
         {
-            // Gọi lại ViewCart để thống nhất logic (nếu bạn muốn giữ ViewCart làm chính)
+            // Gọi lại ViewCart để thống nhất logic
             return RedirectToAction("ViewCart");
         }
-
 
         [HttpPost]
         public async Task<IActionResult> AddToCart(Guid productId, int quantity = 1)
@@ -46,8 +47,8 @@ namespace ECommerce.Web.Controllers
                 return RedirectToAction("Detail", "Product", new { id = productId });
             }
 
-            // Lấy giỏ hàng từ Session hoặc tạo mới nếu chưa có
-            var cartItems = GetCartFromSession();
+            // Lấy giỏ hàng từ Cookie hoặc tạo mới nếu chưa có
+            var cartItems = GetCartFromCookie();
 
             // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
             var existingItem = cartItems.FirstOrDefault(item => item.ProductId == productId);
@@ -70,8 +71,8 @@ namespace ECommerce.Web.Controllers
                 });
             }
 
-            // Lưu giỏ hàng vào Session
-            SaveCartToSession(cartItems);
+            // Lưu giỏ hàng vào Cookie
+            SaveCartToCookie(cartItems);
 
             TempData["Success"] = "Product added to cart successfully";
             return RedirectToAction("Details", "Products", new { id = productId });
@@ -80,20 +81,20 @@ namespace ECommerce.Web.Controllers
         [HttpGet]
         public IActionResult ViewCart()
         {
-            var cartItems = GetCartFromSession();
+            var cartItems = GetCartFromCookie();
             return View(cartItems);
         }
 
         [HttpPost]
         public IActionResult RemoveFromCart(Guid productId)
         {
-            var cartItems = GetCartFromSession();
+            var cartItems = GetCartFromCookie();
             var itemToRemove = cartItems.FirstOrDefault(item => item.ProductId == productId);
 
             if (itemToRemove != null)
             {
                 cartItems.Remove(itemToRemove);
-                SaveCartToSession(cartItems);
+                SaveCartToCookie(cartItems);
                 TempData["Success"] = "Item removed from cart";
             }
 
@@ -108,13 +109,13 @@ namespace ECommerce.Web.Controllers
                 return RedirectToAction("RemoveFromCart", new { productId });
             }
 
-            var cartItems = GetCartFromSession();
+            var cartItems = GetCartFromCookie();
             var itemToUpdate = cartItems.FirstOrDefault(item => item.ProductId == productId);
 
             if (itemToUpdate != null)
             {
                 itemToUpdate.Quantity = quantity;
-                SaveCartToSession(cartItems);
+                SaveCartToCookie(cartItems);
                 TempData["Success"] = "Cart updated";
             }
 
@@ -124,29 +125,45 @@ namespace ECommerce.Web.Controllers
         [HttpPost]
         public IActionResult ClearCart()
         {
-            HttpContext.Session.Remove(CartSessionKey);
+            // Xóa cookie giỏ hàng
+            Response.Cookies.Delete(CartCookieKey);
             TempData["Success"] = "Cart cleared";
             return RedirectToAction("ViewCart");
         }
 
-        // Helper method để lấy giỏ hàng từ Session
-        private List<CartItem> GetCartFromSession()
+        // Helper method để lấy giỏ hàng từ Cookie
+        private List<CartItem> GetCartFromCookie()
         {
-            if (HttpContext.Session.TryGetValue(CartSessionKey, out byte[] cartData))
+            if (Request.Cookies.TryGetValue(CartCookieKey, out string cartJson))
             {
-                return JsonSerializer.Deserialize<List<CartItem>>(cartData);
+                try
+                {
+                    return JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+                }
+                catch
+                {
+                    // Nếu có lỗi khi deserialize, trả về giỏ hàng mới
+                    return new List<CartItem>();
+                }
             }
 
             return new List<CartItem>();
         }
 
-        // Helper method để lưu giỏ hàng vào Session
-        private void SaveCartToSession(List<CartItem> cartItems)
+        // Helper method để lưu giỏ hàng vào Cookie
+        private void SaveCartToCookie(List<CartItem> cartItems)
         {
-            var cartData = JsonSerializer.SerializeToUtf8Bytes(cartItems);
-            HttpContext.Session.Set(CartSessionKey, cartData);
+            var cartJson = JsonSerializer.Serialize(cartItems);
+
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(CookieExpirationDays),
+                HttpOnly = true,
+                Secure = Request.IsHttps, // Đảm bảo cookie chỉ được gửi qua HTTPS nếu đang sử dụng HTTPS
+                SameSite = SameSiteMode.Lax // Cho phép cookie được gửi trong các yêu cầu chuyển hướng từ bên ngoài
+            };
+
+            Response.Cookies.Append(CartCookieKey, cartJson, cookieOptions);
         }
     }
-
-
 }

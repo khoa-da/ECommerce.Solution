@@ -1,0 +1,272 @@
+﻿@model ECommerce.Shared.BusinessModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-5 text-gray-500 text-sm">
+            <a href="/" class="hover:text-indigo-600">Home</a>
+            <span class="mx-2">/</span>
+            <a href="/Product" class="hover:text-indigo-600">Products</a>
+            <span class="mx-2">/</span>
+            <a href="/Cart/ViewCart" class="hover:text-indigo-600">Shopping Cart</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">Checkout</span>
+        </nav>
+
+        <!-- Checkout Header -->
+        <div class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Checkout</h1>
+            <p class="text-gray-600">Complete your purchase</p>
+        </div>
+
+        <!-- Status Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+                <p>@TempData["Success"]</p>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                <p>@TempData["Error"]</p>
+            </div>
+        }
+
+        <!-- Checkout Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <!-- Checkout Form -->
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <form id="checkout-form" asp-controller="Order" asp-action="CreateOrder" method="post">
+                        <!-- Personal Information -->
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-user mr-2 text-indigo-600"></i> Personal Information
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="FirstName" class="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
+                                    <input type="text" id="FirstName" name="FirstName" required value="@Model.FirstName" readonly
+                                           class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="LastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
+                                    <input type="text" id="LastName" name="LastName" required value="@Model.LastName" readonly
+                                           class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email Address*</label>
+                                    <input type="email" id="Email" name="Email" required value="@Model.Email" readonly
+                                           class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                                    <input type="tel" id="PhoneNumber" name="PhoneNumber" required value="@Model.PhoneNumber" readonly
+                                           class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-shipping-fast mr-2 text-indigo-600"></i> Shipping Address
+                            </h2>
+                            <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                    <label for="Address" class="block text-sm font-medium text-gray-700 mb-1">Street Address*</label>
+                                    <input type="text" id="Address" name="Address" required value="@Model.Address"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label for="City" class="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                                        <input type="text" id="City" name="City" required
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label for="State" class="block text-sm font-medium text-gray-700 mb-1">State/Province*</label>
+                                        <input type="text" id="State" name="State" required
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label for="ZipCode" class="block text-sm font-medium text-gray-700 mb-1">Zip/Postal Code*</label>
+                                        <input type="text" id="ZipCode" name="ZipCode" required
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="Country" class="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                                    <select id="Country" name="Country" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="">Select a country</option>
+                                        <option value="US">United States</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="VN">Vietnam</option>
+                                        <!-- Add more countries as needed -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-credit-card mr-2 text-indigo-600"></i> Payment Method
+                            </h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input id="payment-cash" name="PaymentMethod" type="radio" value="CashOnDelivery" checked
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <label for="payment-cash" class="ml-3 block text-sm font-medium text-gray-700">
+                                        Cash on Delivery
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="payment-card" name="PaymentMethod" type="radio" value="CreditCard" disabled
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <label for="payment-card" class="ml-3 block text-sm font-medium text-gray-400">
+                                        Credit Card (Coming Soon)
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="payment-paypal" name="PaymentMethod" type="radio" value="Paypal" disabled
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <label for="payment-paypal" class="ml-3 block text-sm font-medium text-gray-400">
+                                        PayPal (Coming Soon)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Notes -->
+                        <div class="p-6">
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-clipboard mr-2 text-indigo-600"></i> Order Notes (Optional)
+                            </h2>
+                            <div>
+                                <textarea id="Notes" name="Notes" rows="3" placeholder="Notes about your order, e.g. special delivery instructions"
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Return to Cart Button -->
+                        <div class="p-4 border-t border-gray-200">
+                            <div class="flex justify-between">
+                                <a href="/Cart/ViewCart" class="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                    <i class="fas fa-arrow-left mr-2"></i> Return to Cart
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
+
+                    <div class="border-b border-gray-200 pb-4 mb-4">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Items (@(Model?.CartItems?.Count ?? 0))</h3>
+                        <div class="space-y-3 max-h-48 overflow-auto">
+                            @if (Model?.CartItems != null)
+                            {
+                                foreach (var item in Model.CartItems)
+                                {
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-md overflow-hidden">
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl" alt="@item.ProductName" class="h-full w-full object-cover">
+                                            }
+                                            else
+                                            {
+                                                <div class="h-full w-full flex items-center justify-center bg-gray-200">
+                                                    <i class="fas fa-image text-gray-400"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="ml-3 flex-1">
+                                            <p class="text-sm font-medium text-gray-900 truncate">@item.ProductName</p>
+                                            <p class="text-xs text-gray-500">Qty: @item.Quantity</p>
+                                        </div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            $@item.TotalPrice
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span class="font-medium">$@(Model?.CartItems?.Sum(x => x.TotalPrice) ?? 0)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tax</span>
+                            <span class="font-medium">$0.00</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4 flex justify-between">
+                            <span class="text-lg font-medium text-gray-900">Total</span>
+                            <span class="text-lg font-bold text-gray-900">$@(Model?.CartItems?.Sum(x => x.TotalPrice) ?? 0)</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button type="submit" form="checkout-form" class="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg flex items-center justify-center">
+                            <i class="fas fa-lock mr-2"></i> Place Order
+                        </button>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mt-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-2">We Accept</h3>
+                        <div class="flex space-x-2">
+                            <div class="p-2 border border-gray-200 rounded">
+                                <i class="fab fa-cc-visa text-blue-700 text-2xl"></i>
+                            </div>
+                            <div class="p-2 border border-gray-200 rounded">
+                                <i class="fab fa-cc-mastercard text-red-600 text-2xl"></i>
+                            </div>
+                            <div class="p-2 border border-gray-200 rounded">
+                                <i class="fab fa-cc-paypal text-blue-500 text-2xl"></i>
+                            </div>
+                            <div class="p-2 border border-gray-200 rounded">
+                                <i class="fab fa-cc-apple-pay text-gray-900 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secure Checkout -->
+                    <div class="mt-6 text-center">
+                        <div class="flex items-center justify-center text-sm text-gray-500">
+                            <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                            Secure Checkout
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

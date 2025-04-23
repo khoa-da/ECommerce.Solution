@@ -57,5 +57,13 @@ namespace ECommerce.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet(ApiEndPointConstant.Category.ProductsInParentCategoryEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductResponse>))]
+        public async Task<IActionResult> GetProductsInParentCategory(Guid parentId, string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var response = await _productService.GetProductByParentsCategory(parentId, search, orderBy, page, size);
+            return Ok(response);
+        }
+
     }
 }

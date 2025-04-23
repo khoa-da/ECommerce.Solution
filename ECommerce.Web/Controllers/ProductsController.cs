@@ -29,7 +29,7 @@ namespace ECommerce.Web.Controllers
             {
                 return NotFound();
             }
-           
+
 
             var product = await _httpService.GetAsync<ProductDetailResponse>($"products/{id}");
             if (product == null)

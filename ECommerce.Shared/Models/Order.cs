@@ -26,6 +26,8 @@ public partial class Order
 
     public string? ShippingMethod { get; set; }
 
+    public string? Notes { get; set; }
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual Store? Store { get; set; }

@@ -7,6 +7,7 @@ using ECommerce.Shared.Models;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Order;
 using ECommerce.Shared.Payload.Response.Order;
+using ECommerce.Shared.Payload.Response.OrderItem;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -169,6 +170,34 @@ namespace ECommerce.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
+        // Method to get cart items from cookies instead of session
+        private List<CartItem> GetCartItemsFromCookies()
+        {
+            const string CartCookieKey = "Cart";
+
+            if (_httpContextAccessor.HttpContext.Request.Cookies.TryGetValue(CartCookieKey, out string cartJson))
+            {
+                try
+                {
+                    return System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+                }
+                catch
+                {
+                    // If there's an error when deserializing, return a new cart
+                    return new List<CartItem>();
+                }
+            }
+
+            return new List<CartItem>();
+        }
+
+        // Method to clear cart from cookies
+        private void ClearCartCookies()
+        {
+            const string CartCookieKey = "Cart";
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(CartCookieKey);
+        }
+
         public async Task<OrderResponse> CreateV2(OrderRequest order)
         {
             // Validate the order request
@@ -176,7 +205,7 @@ namespace ECommerce.Core.Services.Implementations
             {
                 throw new ArgumentNullException(nameof(order), "Order request cannot be null.");
             }
-            if(order.UserId == Guid.Empty)
+            if (order.UserId == Guid.Empty)
             {
                 order.UserId = Guid.Parse(GetUserIdFromJwt());
             }
@@ -187,8 +216,13 @@ namespace ECommerce.Core.Services.Implementations
                 throw new EntryPointNotFoundException("User not found.");
             }
 
-            // Get cart from Session
-            var cartItems = GetCartItemsFromSession();
+            // Get cart from Cookies instead of Session
+            //var cartItems = GetCartItemsFromCookies();
+            var cartItems = order.CartItems;
+            if (cartItems == null || cartItems.Count == 0)
+            {
+                throw new InvalidOperationException("Cart is empty. Cannot create order.");
+            }
             if (cartItems == null || cartItems.Count == 0)
             {
                 throw new InvalidOperationException("Cart is empty. Cannot create order.");
@@ -200,7 +234,7 @@ namespace ECommerce.Core.Services.Implementations
             orderEntity.OrderDate = DateTime.UtcNow.AddHours(7);
 
             // Set hard-coded store info
-            Guid hardCodedStoreId = Guid.Parse("11111111-1111-1111-1111-111111111111"); // Replace with your actual store ID
+            Guid hardCodedStoreId = Guid.Parse("98ECB2CF-F3D0-47D5-B3B9-3F08B6921FC1"); // Replace with your actual store ID
             string storeName = "Main Store"; // Replace with your actual store name
             string storePhone = "1234567890"; // Replace with your actual store phone
 
@@ -209,8 +243,9 @@ namespace ECommerce.Core.Services.Implementations
             orderEntity.PaymentStatus = OrderEnum.PaymentStatus.Pending.ToString();
             orderEntity.OrderStatus = OrderEnum.OrderStatus.Processing.ToString();
 
-            // Process the order items from cart in session
+            // Process the order items from cart in cookies
             var orderItems = new List<OrderItem>();
+            var orderItemResponses = new List<OrderItemResponse>();
             foreach (var cartItem in cartItems)
             {
                 // Verify product still exists and check stock directly in Product
@@ -237,6 +272,8 @@ namespace ECommerce.Core.Services.Implementations
                     Quantity = cartItem.Quantity,
                     Price = cartItem.Price,
                     TotalAmount = cartItem.Quantity * cartItem.Price
+
+
                 };
 
                 orderItems.Add(orderItemEntity);
@@ -244,6 +281,26 @@ namespace ECommerce.Core.Services.Implementations
                 // Update product stock directly
                 product.Stock -= cartItem.Quantity;
                 _unitOfWork.GetRepository<Product>().UpdateAsync(product);
+
+                var orderItemResponse = new OrderItemResponse
+                {
+                    Id = orderItemEntity.Id,
+                    OrderId = orderEntity.Id,
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    CategoryId = product.CategoryId,
+                    CategoryName = product.Category?.Name, // nếu có navigation
+                    Gender = product.Gender,
+                    Size = product.Size,
+                    Brand = product.Brand,
+                    Sku = product.Sku,
+                    Tags = product.Tags,
+                    Material = product.Material,
+                    Quantity = orderItemEntity.Quantity,
+                    Price = orderItemEntity.Price,
+                    TotalAmount = orderItemEntity.TotalAmount
+                };
+                orderItemResponses.Add(orderItemResponse);
             }
 
             orderEntity.OrderItems = orderItems;
@@ -253,7 +310,7 @@ namespace ECommerce.Core.Services.Implementations
             await _unitOfWork.GetRepository<Order>().InsertAsync(orderEntity);
 
             // Clear the cart after successful order creation
-            ClearCartSession();
+            ClearCartCookies();
 
             if (await _unitOfWork.CommitAsync() <= 0)
             {
@@ -268,28 +325,13 @@ namespace ECommerce.Core.Services.Implementations
             orderResponse.PhoneNumber = user.PhoneNumber;
             orderResponse.StoreName = storeName;
             orderResponse.StorePhoneNumber = storePhone;
+            orderResponse.OrderItems = orderItemResponses;
+
 
             return orderResponse;
         }
 
-        // Method to get cart items from session
-        private List<CartItem> GetCartItemsFromSession()
-        {
-            const string CartSessionKey = "Cart";
 
-            if (_httpContextAccessor.HttpContext.Session.TryGetValue(CartSessionKey, out byte[] cartData))
-            {
-                return System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartData);
-            }
 
-            return new List<CartItem>();
-        }
-
-        // Method to clear cart from session
-        private void ClearCartSession()
-        {
-            const string CartSessionKey = "Cart";
-            _httpContextAccessor.HttpContext.Session.Remove(CartSessionKey);
-        }
     }
 }

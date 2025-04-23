@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Shared.Payload.Request.Order
+﻿using ECommerce.Shared.BusinessModels;
+
+namespace ECommerce.Shared.Payload.Request.Order
 {
     public class OrderRequest
     {
@@ -12,5 +14,7 @@
         public string? PaymentMethod { get; set; }
 
         public string? ShippingMethod { get; set; }
+        public List<CartItem> CartItems { get; set; }
+        public string? Notes { get; set; }
     }
 }
