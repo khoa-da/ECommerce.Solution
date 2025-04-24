@@ -143,5 +143,113 @@ namespace ECommerce.Core.Services.Implementations
             var userResponse = _mapper.Map<UserResponse>(user);
             return userResponse;
         }
+
+        public async Task<UserResponse> UpdateUser(Guid id, UserRequest userRequest)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id), "Id cannot be empty.");
+            }
+            var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.Id == id);
+            if (user == null)
+            {
+                throw new EntityNotFoundException("User not found.");
+            }
+            // Validate the request
+            if (!string.IsNullOrEmpty(userRequest.Email) && userRequest.Email != user.Email)
+            {
+                var existingEmail = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.Email == userRequest.Email && u.Id != id);
+                if (existingEmail != null)
+                {
+                    throw new DataConflictException("Email is already in use by another user.");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(userRequest.PhoneNumber) && userRequest.PhoneNumber != user.PhoneNumber)
+            {
+                var existingPhone = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.PhoneNumber == userRequest.PhoneNumber && u.Id != id);
+                if (existingPhone != null)
+                {
+                    throw new DataConflictException("Phone number is already in use by another user.");
+                }
+            }
+            _mapper.Map(userRequest, user);
+
+            _unitOfWork.GetRepository<User>().UpdateAsync(user);
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new DataConflictException("Failed to update user.");
+            }
+
+            var userResponse = _mapper.Map<UserResponse>(user);
+            return userResponse;
+
+        }
+
+        public async Task<bool> UpdateUserStatus(Guid id, string status)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id), "Id cannot be empty.");
+            }
+            var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.Id == id);
+            if (user == null)
+            {
+                throw new EntityNotFoundException("User not found.");
+            }
+            user.Status = status;
+            _unitOfWork.GetRepository<User>().UpdateAsync(user);
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new DataConflictException("Failed to update user status.");
+            }
+            return true;
+        }
+
+        public async Task<bool> DeleteUser(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id), "Id cannot be empty.");
+            }
+
+            var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.Id == id);
+            if (user == null)
+            {
+                throw new EntityNotFoundException("User not found.");
+            }
+
+            // Soft delete - change status to Inactive
+            user.Status = UserEnum.Status.Inactive.ToString();
+
+            _unitOfWork.GetRepository<User>().UpdateAsync(user);
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new DataConflictException("Failed to delete user.");
+            }
+
+            return true;
+        }
+        public async Task<bool> HardDeleteUser(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id), "Id cannot be empty.");
+            }
+
+            var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: u => u.Id == id);
+            if (user == null)
+            {
+                throw new EntityNotFoundException("User not found.");
+            }
+
+            _unitOfWork.GetRepository<User>().DeleteAsync(user);
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new DataConflictException("Failed to delete user.");
+            }
+
+            return true;
+        }
     }
 }

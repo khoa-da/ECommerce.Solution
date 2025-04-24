@@ -430,7 +430,7 @@ namespace ECommerce.Core.Services.Implementations
                     }).ToList(),
                     Notes = x.Notes
                 },
-                predicate: x => x.UserId == userId && (string.IsNullOrEmpty(search) || x.OrderNumber.ToLower().Contains(search)),
+                predicate: x => x.UserId == userId && (string.IsNullOrEmpty(search) || x.OrderNumber.ToLower().Contains(search) || x.OrderStatus.ToLower().Equals(search)),
                 orderBy: orderByFunc,
                 include: x => x.Include(o => o.OrderItems).ThenInclude(oi => oi.Product),
                 page: page,

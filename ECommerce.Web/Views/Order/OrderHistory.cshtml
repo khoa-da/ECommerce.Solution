@@ -1,263 +1,172 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order History</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body class="bg-gray-50">
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <!-- Breadcrumb -->
-        <nav class="flex mb-5 text-gray-500 text-sm">
-            <a href="/" class="hover:text-indigo-600">Home</a>
-            <span class="mx-2">/</span>
-            <a href="/account" class="hover:text-indigo-600">My Account</a>
-            <span class="mx-2">/</span>
-            <span class="text-gray-900">Order History</span>
-        </nav>
+﻿@model ECommerce.Shared.Paginate.Paginate<ECommerce.Shared.Payload.Response.Order.OrderResponse>
+@{
+    ViewData["Title"] = "Order History";
+}
 
-        <!-- Page Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">My Orders</h1>
-            <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <i class="fas fa-shopping-cart mr-2"></i> Continue Shopping
-            </a>
-        </div>
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-5 text-gray-500 text-sm">
+        <a href="/" class="hover:text-indigo-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/User/Profile" class="hover:text-indigo-600">My Account</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">Order History</span>
+    </nav>
 
-        <!-- Order Filters -->
-        <div class="bg-white p-4 rounded-lg shadow mb-6">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center">
-                    <span class="text-gray-700 mr-2">Filter by:</span>
-                    <select id="statusFilter" class="border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <option value="all">All Orders</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-gray-700 mr-2">Sort by:</span>
-                    <select id="sortBy" class="border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <option value="date-desc">Newest First</option>
-                        <option value="date-asc">Oldest First</option>
-                        <option value="total-desc">Highest Amount</option>
-                        <option value="total-asc">Lowest Amount</option>
-                    </select>
-                </div>
-                <div class="relative">
-                    <input type="text" id="searchOrder" placeholder="Search orders..." class="border border-gray-300 rounded-md shadow-sm py-2 pl-10 pr-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full md:w-auto">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
+    <!-- Page Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">My Orders</h1>
+        <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-shopping-cart mr-2"></i> Continue Shopping
+        </a>
+    </div>
+
+    <!-- Order Filters -->
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center">
+                <span class="text-gray-700 mr-2">Filter by:</span>
+                <select id="statusFilter" class="border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="">All Orders</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="flex items-center">
+                <span class="text-gray-700 mr-2">Sort by:</span>
+                <select id="sortBy" class="border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="order_date_desc">Newest First</option>
+                    <option value="order_date_asc">Oldest First</option>
+                    <option value="total_amount_desc">Highest Amount</option>
+                    <option value="total_amount_asc">Lowest Amount</option>
+                </select>
+            </div>
+            <div class="relative">
+                <input type="text" id="searchOrder" placeholder="Search orders..." class="border border-gray-300 rounded-md shadow-sm py-2 pl-10 pr-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full md:w-auto">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
                 </div>
             </div>
         </div>
+    </div>
 
+    @if (Model != null)
+    {
         <!-- Orders List -->
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
             <ul class="divide-y divide-gray-200">
-                <!-- Order Item 1 -->
-                <li>
-                    <a href="/orders/details/123456" class="block hover:bg-gray-50">
-                        <div class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">
-                                        Order #ORD-123456
-                                    </p>
-                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        Processing
-                                    </span>
+                @foreach (var order in Model.Items)
+                {
+                    <!-- Order Item -->
+                    <li>
+                        <a href="/Order/OrderDetails/@order.Id" class="block hover:bg-gray-50">
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <p class="text-sm font-medium text-indigo-600 truncate">
+                                            Order #@order.OrderNumber
+                                        </p>
+                                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                               @(order.OrderStatus == "Processing" ? "bg-yellow-100 text-yellow-800" :
+                                                 order.OrderStatus == "Shipped" ? "bg-blue-100 text-blue-800" :
+                                                 order.OrderStatus == "Delivered" ? "bg-green-100 text-green-800" :
+                                                 "bg-red-100 text-red-800")">
+                                            @order.OrderStatus
+                                        </span>
+                                    </div>
+                                    <div class="ml-2 flex-shrink-0 flex">
+                                        <p class="text-sm text-gray-900 font-medium">$@order.TotalAmount.ToString("0.00")</p>
+                                    </div>
                                 </div>
-                                <div class="ml-2 flex-shrink-0 flex">
-                                    <p class="text-sm text-gray-900 font-medium">$249.99</p>
-                                </div>
-                            </div>
-                            <div class="mt-2 sm:flex sm:justify-between">
-                                <div class="sm:flex">
-                                    <p class="flex items-center text-sm text-gray-500">
-                                        <i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        April 18, 2025
-                                    </p>
-                                    <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                        <i class="fas fa-credit-card flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        Credit Card
-                                    </p>
-                                </div>
-                                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                    <i class="fas fa-clock flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                    <p>3 items</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-
-                <!-- Order Item 2 -->
-                <li>
-                    <a href="/orders/details/123457" class="block hover:bg-gray-50">
-                        <div class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">
-                                        Order #ORD-123457
-                                    </p>
-                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Delivered
-                                    </span>
-                                </div>
-                                <div class="ml-2 flex-shrink-0 flex">
-                                    <p class="text-sm text-gray-900 font-medium">$129.50</p>
+                                <div class="mt-2 sm:flex sm:justify-between">
+                                    <div class="sm:flex">
+                                        <p class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                            @order.OrderDate.ToString("MMMM d, yyyy")
+                                        </p>
+                                        <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                                            <i class="fas fa-credit-card flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                            @order.PaymentMethod
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                        <i class="fas fa-clock flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                        <p>@order.OrderItems.Count item@(order.OrderItems.Count > 1 ? "s" : "")</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mt-2 sm:flex sm:justify-between">
-                                <div class="sm:flex">
-                                    <p class="flex items-center text-sm text-gray-500">
-                                        <i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        April 10, 2025
-                                    </p>
-                                    <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                        <i class="fas fa-credit-card flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        PayPal
-                                    </p>
-                                </div>
-                                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                    <i class="fas fa-clock flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                    <p>2 items</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-
-                <!-- Order Item 3 -->
-                <li>
-                    <a href="/orders/details/123458" class="block hover:bg-gray-50">
-                        <div class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">
-                                        Order #ORD-123458
-                                    </p>
-                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        Shipped
-                                    </span>
-                                </div>
-                                <div class="ml-2 flex-shrink-0 flex">
-                                    <p class="text-sm text-gray-900 font-medium">$189.75</p>
-                                </div>
-                            </div>
-                            <div class="mt-2 sm:flex sm:justify-between">
-                                <div class="sm:flex">
-                                    <p class="flex items-center text-sm text-gray-500">
-                                        <i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        April 5, 2025
-                                    </p>
-                                    <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                        <i class="fas fa-credit-card flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        Credit Card
-                                    </p>
-                                </div>
-                                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                    <i class="fas fa-clock flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                    <p>4 items</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-
-                <!-- Order Item 4 -->
-                <li>
-                    <a href="/orders/details/123459" class="block hover:bg-gray-50">
-                        <div class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">
-                                        Order #ORD-123459
-                                    </p>
-                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        Cancelled
-                                    </span>
-                                </div>
-                                <div class="ml-2 flex-shrink-0 flex">
-                                    <p class="text-sm text-gray-900 font-medium">$85.20</p>
-                                </div>
-                            </div>
-                            <div class="mt-2 sm:flex sm:justify-between">
-                                <div class="sm:flex">
-                                    <p class="flex items-center text-sm text-gray-500">
-                                        <i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        March 28, 2025
-                                    </p>
-                                    <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                        <i class="fas fa-credit-card flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                        Google Pay
-                                    </p>
-                                </div>
-                                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                    <i class="fas fa-clock flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
-                                    <p>1 item</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
 
         <!-- Pagination -->
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
-            <div class="flex-1 flex justify-between sm:hidden">
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Previous
-                </a>
-                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Next
-                </a>
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">12</span> orders
-                    </p>
+        @if (ViewBag.TotalPages > 1)
+        {
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <a href="@Url.Action("OrderHistory", new { page = ViewBag.CurrentPage - 1 })" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Previous
+                        </a>
+                    }
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <a href="@Url.Action("OrderHistory", new { page = ViewBag.CurrentPage + 1 })" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Next
+                        </a>
+                    }
                 </div>
-                <div>
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Previous</span>
-                            <i class="fas fa-chevron-left h-5 w-5"></i>
-                        </a>
-                        <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            1
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            2
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            3
-                        </a>
-                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                            ...
-                        </span>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            8
-                        </a>
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Next</span>
-                            <i class="fas fa-chevron-right h-5 w-5"></i>
-                        </a>
-                    </nav>
-                </div>
-            </div>
-        </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing <span class="font-medium">@(((ViewBag.CurrentPage - 1) * ViewBag.PageSize) + 1)</span> to
+                            <span class="font-medium">@Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalItems)</span> of
+                            <span class="font-medium">@ViewBag.TotalItems</span> orders
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <a href="@Url.Action("OrderHistory", new { page = ViewBag.CurrentPage - 1 })" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Previous</span>
+                                    <i class="fas fa-chevron-left h-5 w-5"></i>
+                                </a>
+                            }
 
-        <!-- No Orders State (Hidden by default) -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-md p-8 text-center hidden">
+                            @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                            {
+                                <a href="@Url.Action("OrderHistory", new { page = i })"
+                                   class="@(i == ViewBag.CurrentPage
+                                          ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                                          : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50")
+                                          relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                    @i
+                                </a>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <a href="@Url.Action("OrderHistory", new { page = ViewBag.CurrentPage + 1 })" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Next</span>
+                                    <i class="fas fa-chevron-right h-5 w-5"></i>
+                                </a>
+                            }
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <!-- No Orders State -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-md p-8 text-center">
             <div class="mb-6">
                 <i class="fas fa-shopping-bag text-6xl text-gray-300"></i>
             </div>
@@ -269,32 +178,45 @@
                 </a>
             </div>
         </div>
-    </div>
+    }
+</div>
 
-    <!-- Simple Filter/Sort Script -->
+@section Scripts {
     <script>
-        // This is a simple client-side implementation
-        // In a real application, you would typically handle this server-side
         document.addEventListener('DOMContentLoaded', function() {
             const statusFilter = document.getElementById('statusFilter');
             const sortBy = document.getElementById('sortBy');
             const searchOrder = document.getElementById('searchOrder');
 
             // Add event listeners for filtering and sorting
-            statusFilter.addEventListener('change', filterOrders);
-            sortBy.addEventListener('change', filterOrders);
-            searchOrder.addEventListener('input', filterOrders);
+            statusFilter.addEventListener('change', applyFilters);
+            sortBy.addEventListener('change', applyFilters);
+            searchOrder.addEventListener('input', applyFilters);
 
-            function filterOrders() {
-                // This would typically make an AJAX request to the server
-                // For demo purposes, we're just showing how the event listeners would work
-                console.log('Status Filter:', statusFilter.value);
-                console.log('Sort By:', sortBy.value);
-                console.log('Search Query:', searchOrder.value);
+            function applyFilters() {
+                const status = statusFilter.value;
+                const orderBy = sortBy.value;
+                const search = searchOrder.value;
 
-                // Actual implementation would reload the orders list based on filters
+                // Build query string
+                let queryParams = [];
+                if (status && status !== 'all') {
+                    queryParams.push(`status=${encodeURIComponent(status)}`);
+                }
+                if (orderBy) {
+                    queryParams.push(`orderBy=${encodeURIComponent(orderBy)}`);
+                }
+                if (search) {
+                    queryParams.push(`search=${encodeURIComponent(search)}`);
+                }
+
+                // Redirect to the filtered URL
+                let url = '@Url.Action("OrderHistory")';
+                if (queryParams.length > 0) {
+                    url += '?' + queryParams.join('&');
+                }
+                window.location.href = url;
             }
         });
     </script>
-</body>
-</html>
+}

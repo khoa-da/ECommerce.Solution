@@ -1,9 +1,11 @@
 ﻿using ECommerce.Shared.BusinessModels;
+using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Order;
 using ECommerce.Shared.Payload.Response.Order;
 using ECommerce.Shared.Payload.Response.User;
 using ECommerce.Web.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing.Printing;
 using System.Security.Claims;
 
 namespace ECommerce.Web.Controllers
@@ -145,25 +147,50 @@ namespace ECommerce.Web.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> OrderHistory(Guid userId)
+        public async Task<IActionResult> OrderHistory(string? search, string? orderBy, int page = 1, int size = 10)
         {
-            //try
-            //{
-            //    // Get order history for the user
-            //    var orders = await _httpService.GetAsync<List<OrderResponse>>($"user/{userId}/order");
-            //    if (orders == null || orders.Count == 0)
-            //    {
-            //        TempData["Error"] = "No orders found.";
-            //        return RedirectToAction("Index", "Home");
-            //    }
-            //    return View(orders);
-            //}
-            //catch (Exception ex)
-            //{
-            //    TempData["Error"] = $"An error occurred: {ex.Message}";
-            //    return RedirectToAction("Index", "Home");
-            //}
-            return null;
+            try
+            {
+                var userId = GetUserIdFromJwt();
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["Error"] = "You need to be logged in to view your order history.";
+                    return RedirectToAction("Login", "Auth");
+                }
+                var userGuid = Guid.Parse(userId);
+                var queryParams = new List<string>
+        {
+                    $"page={page}",
+                    $"size={size}"
+        };
+                if (!string.IsNullOrEmpty(orderBy))
+                {
+                    queryParams.Add($"orderBy={orderBy}");
+                }
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    queryParams.Add($"search={search}");
+                }
+                var apiUrl = $"users/{userId}/order?{string.Join("&", queryParams)}";
+                var apiResponse = await _httpService.GetAsync<Paginate<OrderResponse>>(apiUrl);
+                if(apiResponse == null)
+                {
+                    TempData["Error"] = "No orders found.";
+                    return View(new Paginate<OrderResponse>());
+                }
+                // set pagination properties in ViewBag
+                ViewBag.CurrentPage = apiResponse.Page;
+                ViewBag.TotalPages = apiResponse.TotalPages;
+                ViewBag.TotalItems = apiResponse.Total;
+                ViewBag.PageSize = apiResponse.Size;
+                return View(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"An error occurred: {ex.Message}";
+                return View(new Paginate<OrderResponse>());
+            }
         }
 
         [HttpGet]
@@ -180,6 +207,26 @@ namespace ECommerce.Web.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
+                return View(order);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"An error occurred: {ex.Message}";
+                return RedirectToAction("Index", "Home");
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> OrderDetails(Guid id)
+        {
+            try
+            {
+                // Get order details
+                var order = await _httpService.GetAsync<OrderResponse>($"orders/{id}");
+                if (order == null)
+                {
+                    TempData["Error"] = "Order not found.";
+                    return RedirectToAction("Index", "Home");
+                }
                 return View(order);
             }
             catch (Exception ex)
