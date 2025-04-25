@@ -28,6 +28,12 @@ public partial class Order
 
     public string? Notes { get; set; }
 
+    public string? Reason { get; set; }
+
+    public Guid? HumanCancel { get; set; }
+
+    public DateTime? CancelAt { get; set; }
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual Store? Store { get; set; }

@@ -20,7 +20,7 @@ namespace ECommerce.Web.Controllers
         public async Task<IActionResult> Profile()
         {
             var userId = GetUserIdFromJwt();
-            if(string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Auth");
             }

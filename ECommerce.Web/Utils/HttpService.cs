@@ -8,7 +8,7 @@ namespace ECommerce.Web.Utils
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _baseUrl;
-        private const string ACCESS_TOKEN_COOKIE = "AccessToken";
+        private const string ACCESS_TOKEN_COOKIE = "MyCookieAuth";
 
         public HttpService(IHttpContextAccessor httpContextAccessor, string baseUrl = "https://localhost:7062/api/v1/")
         {
@@ -20,11 +20,21 @@ namespace ECommerce.Web.Utils
         {
             return _httpContextAccessor.HttpContext?.Request.Cookies[ACCESS_TOKEN_COOKIE];
         }
+        private string? GetTokenFromClaims()
+        {
+            // Get the current HttpContext
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null || !httpContext.User.Identity.IsAuthenticated)
+                return null;
 
+            // Get token claim from the user's claims
+            var tokenClaim = httpContext.User.Claims.FirstOrDefault(c => c.Type == "Token");
+            return tokenClaim?.Value;
+        }
         // GET request
         public async Task<T> GetAsync<T>(string endpoint, string? token = null, Dictionary<string, string>? queryParams = null)
         {
-            token ??= GetAccessTokenFromCookie();
+            token ??= GetTokenFromClaims();
             string url = _baseUrl + endpoint;
 
             // Add query parameters if needed
@@ -51,7 +61,7 @@ namespace ECommerce.Web.Utils
         // POST request
         public async Task<T> PostAsync<T>(string endpoint, object data, string? token = null, Dictionary<string, string>? queryParams = null)
         {
-            token ??= GetAccessTokenFromCookie();
+            token ??= GetTokenFromClaims();
             string url = _baseUrl + endpoint;
 
             // Add query parameters if needed
@@ -79,7 +89,7 @@ namespace ECommerce.Web.Utils
         // PUT request
         public async Task<T> PutAsync<T>(string endpoint, object data, string? token = null, Dictionary<string, string>? queryParams = null)
         {
-            token ??= GetAccessTokenFromCookie();
+            token ??= GetTokenFromClaims();
             string url = _baseUrl + endpoint;
 
             // Add query parameters if needed
@@ -107,7 +117,7 @@ namespace ECommerce.Web.Utils
         // DELETE request
         public async Task<T> DeleteAsync<T>(string endpoint, string? token = null, Dictionary<string, string>? queryParams = null)
         {
-            token ??= GetAccessTokenFromCookie();
+            token ??= GetTokenFromClaims();
             string url = _baseUrl + endpoint;
 
             // Add query parameters if needed
@@ -132,7 +142,7 @@ namespace ECommerce.Web.Utils
         // DELETE with body
         public async Task<T> DeleteWithBodyAsync<T>(string endpoint, object data, string? token = null, Dictionary<string, string>? queryParams = null)
         {
-            token ??= GetAccessTokenFromCookie();
+            token ??= GetTokenFromClaims();
             string url = _baseUrl + endpoint;
 
             // Add query parameters if needed

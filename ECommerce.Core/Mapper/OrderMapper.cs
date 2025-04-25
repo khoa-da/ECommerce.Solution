@@ -10,6 +10,7 @@ namespace ECommerce.Core.Mapper
         public OrderMapper()
         {
             CreateMap<Order, OrderResponse>().ReverseMap();
+            CreateMap<Order, CancelOrderResponse>().ReverseMap();
             CreateMap<OrderRequest, Order>().ReverseMap();
         }
     }

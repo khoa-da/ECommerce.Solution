@@ -2,7 +2,6 @@
 using ECommerce.Core.Exceptions;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
-using ECommerce.Shared.BusinessModels;
 using ECommerce.Shared.Enums;
 using ECommerce.Shared.Models;
 using ECommerce.Shared.Paginate;
@@ -12,17 +11,17 @@ using ECommerce.Shared.Payload.Response.OrderItem;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography.X509Certificates;
+
 
 
 namespace ECommerce.Core.Services.Implementations
 {
     public class OrderService : BaseService<OrderService>, IOrderService
     {
-        private readonly ICartService _cartService;
-        public OrderService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<OrderService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICartService cartService) : base(unitOfWork, logger, mapper, httpContextAccessor)
+
+        public OrderService(IUnitOfWork<EcommerceDbContext> unitOfWork, ILogger<OrderService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(unitOfWork, logger, mapper, httpContextAccessor)
         {
-            _cartService = cartService;
+
         }
 
         public Task<OrderResponse> ChangeStatus(Guid id, string status)
@@ -197,7 +196,7 @@ namespace ECommerce.Core.Services.Implementations
                 Price = oi.Price,
                 TotalAmount = oi.TotalAmount
             }).ToList();
-            
+
             return orderResponse;
         }
 
@@ -211,7 +210,7 @@ namespace ECommerce.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
-      
+
 
         // Method to clear cart from cookies
         private void ClearCartCookies()
@@ -353,16 +352,16 @@ namespace ECommerce.Core.Services.Implementations
             return orderResponse;
         }
 
-      
+
 
         public async Task<IPaginate<OrderResponse>> GetAllByUserId(Guid userId, string? search, string? orderBy, int page, int size)
         {
             //Validate userId
-            if(userId == Guid.Empty)
+            if (userId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(userId), "User ID cannot be empty.");
             }
-            
+
             //Find user by userId
             var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: x => x.Id == userId);
             if (user == null)
@@ -440,6 +439,54 @@ namespace ECommerce.Core.Services.Implementations
             return orders;
         }
 
+        public async Task<CancelOrderResponse> CancelOrder(Guid id, string? reason)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id), "Order ID cannot be empty.");
+            }
+            var order = await _unitOfWork.GetRepository<Order>().SingleOrDefaultAsync(
+                predicate: x => x.Id == id,
+                include: x => x.Include(o => o.OrderItems).ThenInclude(oi => oi.Product).Include(u => u.User).Include(s => s.Store));
+            if (order == null)
+            {
+                throw new EntityNotFoundException("Order not found.");
+            }
+            if (order.OrderStatus != OrderEnum.OrderStatus.Processing.ToString())
+            {
+                throw new InvalidOperationException("Order cannot be cancelled.");
+            }
+            var userId = GetUserIdFromJwt();
+            if(userId == null)
+            {
+                throw new InvalidOperationException("User ID cannot be null.");
+            }   
+            // Update order status to cancelled
+            order.OrderStatus = OrderEnum.OrderStatus.Cancelled.ToString();
+            order.Reason = reason;
+            order.HumanCancel = Guid.Parse(userId);
+            order.CancelAt = DateTime.UtcNow.AddHours(7);
+            _unitOfWork.GetRepository<Order>().UpdateAsync(order);
 
+            // Restore stock for each order item
+            foreach (var orderItem in order.OrderItems)
+            {
+                var product = orderItem.Product;
+                if (product != null)
+                {
+                    product.Stock += orderItem.Quantity;
+                    _unitOfWork.GetRepository<Product>().UpdateAsync(product);
+                }
+            }
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new Exception("Failed to restore stock.");
+            }
+
+            // Map response
+            var orderResponse = _mapper.Map<CancelOrderResponse>(order);
+
+            return orderResponse;
+        }
     }
 }

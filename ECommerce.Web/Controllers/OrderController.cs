@@ -5,7 +5,6 @@ using ECommerce.Shared.Payload.Response.Order;
 using ECommerce.Shared.Payload.Response.User;
 using ECommerce.Web.Utils;
 using Microsoft.AspNetCore.Mvc;
-using System.Drawing.Printing;
 using System.Security.Claims;
 
 namespace ECommerce.Web.Controllers
@@ -69,6 +68,79 @@ namespace ECommerce.Web.Controllers
             }
 
             return View(checkoutViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CancelOrderForm(string id)
+        {
+            if(string.IsNullOrEmpty(id))
+            {
+                TempData["Error"] = "Order ID is required.";
+                return RedirectToAction("OrderHistory");
+            }
+            var order = await _httpService.GetAsync<OrderResponse>($"orders/{id}");
+            if (order == null)
+            {
+                TempData["Error"] = "Order not found.";
+                return RedirectToAction("OrderHistory");
+            }
+            if (order.OrderStatus != "Processing" && order.OrderStatus != "Pending")
+            {
+                TempData["Error"] = "This order cannot be cancelled anymore.";
+                return RedirectToAction("Details", new { id });
+            }
+            var cancelOrderViewModel = new CancelOrderFormViewModel
+            {
+                OrderId = Guid.Parse(id),
+
+            };
+            return View(cancelOrderViewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CancelOrder(CancelOrderFormViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid data.";
+                return View(model);
+            }
+            try
+            {
+                var cancelOrderRequest = new CancelOrderRequest
+                {
+                    OrderId = model.OrderId,
+                    Reason = model.Reason + " - " + model.Comments
+                };
+
+                var order = await _httpService.GetAsync<OrderResponse>($"orders/{model.OrderId}");
+                if(order == null || order.UserId != Guid.Parse(GetUserIdFromJwt()))
+                {
+                    TempData["Error"] = "You are not authorized to cancel this order.";
+                    return RedirectToAction("OrderHistory");
+                }
+                if (order.OrderStatus != "Processing" && order.OrderStatus != "Pending")
+                {
+                    TempData["Error"] = "This order cannot be cancelled anymore.";
+                    return RedirectToAction("Details", new { id = model.OrderId });
+                }
+                var response = await _httpService.PutAsync<CancelOrderResponse>($"orders/cancel", cancelOrderRequest);
+
+                if (response.CancelAt != null)
+                {
+                    TempData["Success"] = "Your order has been cancelled successfully!";
+                    return RedirectToAction("OrderHistory");
+                }
+                else
+                {
+                    TempData["Error"] = "Failed to cancel order. Please try again.";
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"An error occurred: {ex.Message}";
+                return View(model);
+            }
         }
 
 
@@ -174,7 +246,7 @@ namespace ECommerce.Web.Controllers
                 }
                 var apiUrl = $"users/{userId}/order?{string.Join("&", queryParams)}";
                 var apiResponse = await _httpService.GetAsync<Paginate<OrderResponse>>(apiUrl);
-                if(apiResponse == null)
+                if (apiResponse == null)
                 {
                     TempData["Error"] = "No orders found.";
                     return View(new Paginate<OrderResponse>());

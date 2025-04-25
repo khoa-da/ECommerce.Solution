@@ -37,5 +37,13 @@ namespace ECommerce.API.Controllers
             var response = await _orderService.GetById(id);
             return Ok(response);
         }
+
+        [HttpPut(ApiEndPointConstant.Order.CancelOrderEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderResponse))]
+        public async Task<IActionResult> CancelOrder([FromBody] CancelOrderRequest cancelOrderRequest)
+        {
+            var response = await _orderService.CancelOrder(cancelOrderRequest.OrderId, cancelOrderRequest.Reason);
+            return Ok(response);
+        }
     }
 }
