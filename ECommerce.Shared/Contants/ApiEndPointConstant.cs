@@ -48,6 +48,8 @@
             public const string CategoryByParentIdEndpoint = CategoriesEndpoint + "/parent/{parentId}";
             public const string ProductsInCategoryEndpoint = CategoryEndpoint + "/products";
             public const string ProductsInParentCategoryEndpoint = CategoriesEndpoint + "/parent/{parentId}/products";
+            public const string AllChildrenCategoryEndpoint = CategoriesEndpoint + "/children";
+            public const string AllParentCategoryEndpoint = CategoriesEndpoint + "/parents";
         }
         public static class Store
         {

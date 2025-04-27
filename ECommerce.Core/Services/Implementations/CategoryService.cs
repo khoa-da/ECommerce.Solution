@@ -295,5 +295,30 @@ namespace ECommerce.Core.Services.Implementations
 
             return categoryResponse;
         }
+
+        public async Task<IPaginate<CategoryResponse>> GetAllParentCategory(int page, int size)
+        {
+            var categories = await _unitOfWork.GetRepository<Category>().GetPagingListAsync(
+                selector: x => _mapper.Map<CategoryResponse>(x),
+                predicate: x => x.ParentId == null,
+                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                page: page,
+                size: size
+            );
+
+            return categories;
+        }
+
+        public async Task<IPaginate<CategoryResponse>> GetAllChildrenCategory(int page, int size)
+        {
+            var categories = await _unitOfWork.GetRepository<Category>().GetPagingListAsync(
+                selector: x => _mapper.Map<CategoryResponse>(x),
+                predicate: x => x.ParentId != null,
+                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                page: page,
+                size: size
+            );
+            return categories;
+        }
     }
 }
