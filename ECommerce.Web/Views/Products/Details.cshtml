@@ -28,7 +28,6 @@
     }
 </script>
 
-
 <body class="bg-gray-50">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Breadcrumb -->
@@ -45,16 +44,36 @@
             <h1 class="text-3xl font-bold text-gray-800 mb-2">@Model.Name</h1>
             <div class="flex items-center space-x-4">
                 <div class="flex items-center">
-                    <i class="fas fa-star text-yellow-400"></i>
-                    <i class="fas fa-star text-yellow-400"></i>
-                    <i class="fas fa-star text-yellow-400"></i>
-                    <i class="fas fa-star text-yellow-400"></i>
-                    <i class="fas fa-star-half-alt text-yellow-400"></i>
-                    <span class="ml-2 text-gray-600">(4.5)</span>
+                    @{
+                        // Calculate average rating
+                        double avgRating = Model.Ratings != null && Model.Ratings.Any()
+                        ? Model.Ratings.Average(r => r.Score)
+                        : 0;
+
+                        // Display stars based on average rating
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Floor(avgRating))
+                            {
+                                <i class="fas fa-star text-yellow-400"></i>
+                            }
+                            else if (i - 0.5 <= avgRating)
+                            {
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-star text-yellow-400"></i>
+                            }
+                        }
+                    }
+                    <span class="ml-2 text-gray-600">
+                        (@(avgRating.ToString("0.0")) - @(Model.Ratings?.Count() ?? 0) reviews)
+                    </span>
                 </div>
                 <span class="text-gray-400">|</span>
-                 <span class="text-green-600 font-medium">@(Model.Stock > 0 ? $"{Model.Stock} in stock" : "Out of stock")</span> 
-                 <span class="text-gray-400">|</span> 
+                <span class="text-green-600 font-medium">@(Model.Stock > 0 ? $"{Model.Stock} in stock" : "Out of stock")</span>
+                <span class="text-gray-400">|</span>
                 <span class="text-gray-600">SKU: @Model.Sku</span>
             </div>
         </div>
@@ -83,7 +102,7 @@
                             for (int i = 0; i < Model.ImageUrls.Count(); i++)
                             {
                                 var imageUrl = Model.ImageUrls.ElementAt(i);
-                                <div class="w-24 h-24 rounded-md @(i == 0 ? "border-2 border-indigo-500" : "border border-gray-200 hover:border-indigo-500") overflow-hidden cursor-pointer">
+                                <div class="w-24 h-24 rounded-md @(i == 0 ? "border-2 border-indigo-500 thumbnail-selected" : "border border-gray-200 hover:border-indigo-500") overflow-hidden cursor-pointer">
                                     <img src="@imageUrl" alt="@Model.Name - Image @(i + 1)" class="object-cover w-full h-full" data-src="@imageUrl"
                                          onclick="switchMainImage(this)">
                                 </div>
@@ -98,8 +117,8 @@
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <!-- Price -->
                     <div class="mb-6">
-                        <span class="text-3xl font-bold text-gray-900">@Model.Price</span>
-                        <span class="text-lg text-gray-500 line-through ml-2">$@(Convert.ToDecimal(Model.Price) * 1.2m)</span>
+                        <span class="text-3xl font-bold text-gray-900">$@Model.Price.ToString("0.00")</span>
+                        <span class="text-lg text-gray-500 line-through ml-2">$@((Model.Price * 1.2m).ToString("0.00"))</span>
                         <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-sm font-medium">20% OFF</span>
                     </div>
 
@@ -165,7 +184,6 @@
                     <!-- Action Buttons -->
                     <form asp-controller="Cart" asp-action="AddToCart" method="post">
                         <input type="hidden" name="productId" value="@Model.Id" />
-                        <!-- Đã loại bỏ storeId vì không cần thiết nữa -->
                         <!-- Quantity Selection -->
                         <div class="mb-6">
                             <h3 class="text-gray-900 font-medium mb-3">Quantity</h3>
@@ -215,50 +233,255 @@
         <div class="mt-12">
             <div class="border-b border-gray-200">
                 <nav class="flex space-x-8">
-                    <button class="border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600">
+                    <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         Product Details
                     </button>
                     <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         Specifications
                     </button>
-                    <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Reviews
+                    <button class="border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600">
+                        Reviews (@(Model.Ratings?.Count() ?? 0))
                     </button>
                 </nav>
             </div>
 
-            <!-- More Details Table -->
+            <!-- Reviews Section -->
             <div class="bg-white shadow rounded-lg mt-6 overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <tbody class="divide-y divide-gray-200">
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap bg-gray-50 text-sm font-medium text-gray-900">Created Date</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@Model.CreatedDate.Value.ToString("MMMM d, yyyy")</td>
-                        </tr>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap bg-gray-50 text-sm font-medium text-gray-900">Updated Date</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@Model.UpdatedDate.Value.ToString("MMMM d, yyyy")</td>
-                        </tr>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap bg-gray-50 text-sm font-medium text-gray-900">Stock</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@Model.Stock</td>
-                        </tr>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap bg-gray-50 text-sm font-medium text-gray-900">SKU</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@Model.Sku</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Review Summary -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <!-- Rating Summary -->
+                        <div class="md:col-span-4">
+                            <div class="flex flex-col items-center">
+                                <div class="text-5xl font-bold text-gray-900 mb-2">
+                                    @(Model.Ratings != null && Model.Ratings.Any() ? Model.Ratings.Average(r => r.Score).ToString("0.0") : "0.0")
+                                </div>
+                                <div class="flex mb-2">
+                                    @{
+                                        double avgScore = Model.Ratings != null && Model.Ratings.Any()
+                                        ? Model.Ratings.Average(r => r.Score)
+                                        : 0;
+
+                                        for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= Math.Floor(avgScore))
+                                            {
+                                                <i class="fas fa-star text-yellow-400 mx-0.5"></i>
+                                            }
+                                            else if (i - 0.5 <= avgScore)
+                                            {
+                                                <i class="fas fa-star-half-alt text-yellow-400 mx-0.5"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="far fa-star text-yellow-400 mx-0.5"></i>
+                                            }
+                                        }
+                                    }
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Based on @(Model.Ratings?.Count() ?? 0) reviews
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rating Distribution -->
+                        <div class="md:col-span-8">
+                            @{
+                                // Count ratings
+                                int[] ratingCount = new int[5];
+                                int totalRatings = 0;
+
+                                if (Model.Ratings != null)
+                                {
+                                    totalRatings = Model.Ratings.Count();
+                                    foreach (var rating in Model.Ratings)
+                                    {
+                                        if (rating.Score >= 1 && rating.Score <= 5)
+                                        {
+                                            ratingCount[rating.Score - 1]++;
+                                        }
+                                    }
+                                }
+                            }
+
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                <div class="flex items-center mb-2">
+                                    <div class="flex items-center w-16">
+                                        <span class="text-sm text-gray-600 mr-2">@i</span>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 ml-2">
+                                        @{
+                                            int percent = totalRatings > 0 ? (ratingCount[i - 1] * 100) / totalRatings : 0;
+                                        }
+                                        <div class="bg-yellow-400 h-2.5 rounded-full" style="width: @percent%"></div>
+                                    </div>
+                                    <span class="ml-4 text-sm text-gray-500 w-12">
+                                        @(ratingCount[i - 1])
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Write a Review -->
+                @* <div class="p-6 border-b border-gray-200 bg-gray-50"> *@
+                @*     <h3 class="text-lg font-medium text-gray-900 mb-4">Write a Review</h3> *@
+                @*     <form asp-controller="Product" asp-action="SubmitReview" method="post"> *@
+                @*         <input type="hidden" name="productId" value="@Model.Id" /> *@
+
+                @*         <div class="mb-4"> *@
+                @*             <label for="rating" class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label> *@
+                @*             <div class="flex space-x-2" id="ratingStars"> *@
+                @*                 @for (int i = 1; i <= 5; i++) *@
+                @*                 { *@
+                @*                     <button type="button" data-value="@i" class="text-2xl text-gray-300 hover:text-yellow-400 focus:outline-none rating-star"> *@
+                @*                         <i class="far fa-star"></i> *@
+                @*                     </button> *@
+                @*                 } *@
+                @*             </div> *@
+                @*             <input type="hidden" name="score" id="ratingValue" value="0" /> *@
+                @*         </div> *@
+
+                @*         <div class="mb-4"> *@
+                @*             <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label> *@
+                @*             <textarea id="comment" name="comment" rows="4" *@
+                @*                       class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" *@
+                @*                       placeholder="Share your experience with this product"></textarea> *@
+                @*         </div> *@
+
+                @*         <div class="flex justify-end"> *@
+                @*             <button type="submit" *@
+                @*                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"> *@
+                @*                 Submit Review *@
+                @*             </button> *@
+                @*         </div> *@
+                @*     </form> *@
+                @* </div> *@
+
+                <!-- Customer Reviews -->
+                <div>
+                    @if (Model.Ratings != null && Model.Ratings.Any())
+                    {
+                        <ul class="divide-y divide-gray-200">
+                            @foreach (var rating in Model.Ratings.OrderByDescending(r => r.CreatedDate))
+                            {
+                                <li class="p-6">
+                                    <div class="flex space-x-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <h3 class="text-sm font-medium text-gray-900">@rating.Email</h3>
+                                                <p class="text-sm text-gray-500">
+                                                    @(rating.CreatedDate.ToString("MMMM d, yyyy"))
+                                                </p>
+                                            </div>
+                                            <div class="flex items-center mt-1 mb-2">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    if (i <= rating.Score)
+                                                    {
+                                                        <i class="fas fa-star text-yellow-400 text-sm mr-0.5"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="far fa-star text-yellow-400 text-sm mr-0.5"></i>
+                                                    }
+                                                }
+                                            </div>
+                                            <div class="mt-2 space-y-4 text-sm text-gray-600">
+                                                <p>@rating.Comment</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="p-6 text-center">
+                            <p class="text-gray-500">No reviews yet. Be the first to review this product!</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Action Links -->
+            <div class="mt-8 flex space-x-4">
+                <a href="@Url.Action("Index")" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to List
+                </a>
             </div>
         </div>
-
-        <!-- Action Links -->
-        <div class="mt-8 flex space-x-4">
-
-            <a href="@Url.Action("Index")" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <i class="fas fa-arrow-left mr-2"></i> Back to List
-            </a>
-        </div>
     </div>
+
+    <!-- JavaScript for Rating Stars -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.rating-star');
+            const ratingInput = document.getElementById('ratingValue');
+
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    ratingInput.value = value;
+
+                    // Update the stars UI
+                    stars.forEach((s, index) => {
+                        const starIcon = s.querySelector('i');
+                        if (index < value) {
+                            starIcon.classList.remove('far');
+                            starIcon.classList.add('fas');
+                            s.classList.add('text-yellow-400');
+                            s.classList.remove('text-gray-300');
+                        } else {
+                            starIcon.classList.remove('fas');
+                            starIcon.classList.add('far');
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseover', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+
+                    // Highlight stars on hover
+                    stars.forEach((s, index) => {
+                        const starIcon = s.querySelector('i');
+                        if (index < value) {
+                            starIcon.classList.remove('far');
+                            starIcon.classList.add('fas');
+                            s.classList.add('text-yellow-400');
+                            s.classList.remove('text-gray-300');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseout', function() {
+                    const selectedValue = parseInt(ratingInput.value);
+
+                    // Reset to selected value on mouseout
+                    stars.forEach((s, index) => {
+                        const starIcon = s.querySelector('i');
+                        if (index < selectedValue) {
+                            starIcon.classList.remove('far');
+                            starIcon.classList.add('fas');
+                            s.classList.add('text-yellow-400');
+                            s.classList.remove('text-gray-300');
+                        } else {
+                            starIcon.classList.remove('fas');
+                            starIcon.classList.add('far');
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

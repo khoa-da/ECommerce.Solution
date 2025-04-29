@@ -1,4 +1,7 @@
-﻿namespace ECommerce.Shared.Payload.Response.Product
+﻿using ECommerce.Shared.Models;
+using ECommerce.Shared.Payload.Response.Rating;
+
+namespace ECommerce.Shared.Payload.Response.Product
 {
     public class ProductDetailResponse
     {
@@ -33,5 +36,6 @@
 
         public string? Status { get; set; }
         public ICollection<string>? ImageUrls { get; set; }
+        public ICollection<RatingResponse>? Ratings { get; set; }
     }
 }

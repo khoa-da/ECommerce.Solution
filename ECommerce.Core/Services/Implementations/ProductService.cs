@@ -10,6 +10,7 @@ using ECommerce.Shared.Payload.Request.Product;
 using ECommerce.Shared.Payload.Request.ProductImage;
 using ECommerce.Shared.Payload.Response.Product;
 using ECommerce.Shared.Payload.Response.ProductImage;
+using ECommerce.Shared.Payload.Response.Rating;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -382,7 +383,10 @@ namespace ECommerce.Core.Services.Implementations
 
         public async Task<ProductDetailResponse> GetById(Guid id)
         {
-            var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == id, include: x => x.Include(x => x.Category).Include(x => x.ProductImages));
+            var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(predicate: x => x.Id == id, include: 
+                x => x.Include(x => x.Category).
+                Include(x => x.ProductImages).
+                Include(x => x.Ratings).ThenInclude(x => x.User));
             if (product == null)
             {
                 throw new Exception("Product not found");
@@ -390,6 +394,16 @@ namespace ECommerce.Core.Services.Implementations
             var productResponse = _mapper.Map<ProductDetailResponse>(product);
             productResponse.CategoryName = product.Category.Name;
             productResponse.ImageUrls = product.ProductImages.Select(x => x.ImageUrl).ToList();
+
+            var productRatingResponse = new List<RatingResponse>();
+            foreach (var rating in product.Ratings)
+            {
+                var ratingResponse = _mapper.Map<RatingResponse>(rating);
+                ratingResponse.Email = rating.User.Email;
+                productRatingResponse.Add(ratingResponse);
+            }
+            productResponse.Ratings = productRatingResponse;
+
             return productResponse;
         }
 

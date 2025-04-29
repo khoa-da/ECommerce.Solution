@@ -86,5 +86,13 @@
             //public const string OrderByStoreIdEndpoint = OrdersEndpoint + "/store/{storeId}";
             //public const string OrderByStatusEndpoint = OrdersEndpoint + "/status/{status}";
         }
+
+        public static class Rating
+        {
+            public const string RatingsEndpoint = ApiEndpoint + "/ratings";
+            public const string RatingEndpoint = RatingsEndpoint + "/{id}";
+            public const string RatingByProductIdEndpoint = RatingEndpoint + "/product";
+            public const string RatingByUserIdEndpoint = RatingEndpoint + "/user";
+        }
     }
 }

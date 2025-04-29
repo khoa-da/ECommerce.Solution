@@ -81,7 +81,7 @@ namespace ECommerce.Core.Services.Implementations
 
             var user = await _unitOfWork.GetRepository<User>().GetPagingListAsync(
                 selector: x => _mapper.Map<UserResponse>(x),
-                predicate: string.IsNullOrEmpty(search) ? x => true : x => x.PhoneNumber.ToLower().Contains(search),
+                predicate: string.IsNullOrEmpty(search) ? x => x.Role == RoleEnum.Customer.ToString() : x => x.PhoneNumber.ToLower().Contains(search),
                 orderBy: orderByFunc,
                 page: page,
                 size: size);

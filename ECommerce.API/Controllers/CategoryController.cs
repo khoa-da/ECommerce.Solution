@@ -2,6 +2,7 @@
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Shared.Contants;
 using ECommerce.Shared.Enums;
+using ECommerce.Shared.Errors;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Category;
 using ECommerce.Shared.Payload.Response.Category;
