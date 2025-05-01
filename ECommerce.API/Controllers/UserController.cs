@@ -3,6 +3,7 @@ using ECommerce.Shared.Contants;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.User;
 using ECommerce.Shared.Payload.Response.Order;
+using ECommerce.Shared.Payload.Response.Rating;
 using ECommerce.Shared.Payload.Response.User;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,10 +15,12 @@ namespace ECommerce.API.Controllers
     {
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
-        public UserController(ILogger<UserController> logger, IUserService userService, IOrderService oderService) : base(logger)
+        private readonly IRatingService _ratingService;
+        public UserController(ILogger<UserController> logger, IUserService userService, IOrderService oderService, IRatingService ratingService) : base(logger)
         {
             _userService = userService;
             _orderService = oderService;
+            _ratingService = ratingService;
         }
 
         [HttpPost(ApiEndPointConstant.User.UsersEndpoint)]
@@ -60,6 +63,14 @@ namespace ECommerce.API.Controllers
             var orderResponse = await _orderService.GetAllByUserId(id, search, orderBy, page, size);
             return Ok(orderResponse);
 
+        }
+
+        [HttpGet(ApiEndPointConstant.User.RatingByUserIdEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<RatingResponse>))]
+        public async Task<IActionResult> GetRatingsByUserId(Guid id, string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var ratingResponse = await _ratingService.GetAllByUserId(id, search, orderBy, page, size);
+            return Ok(ratingResponse);
         }
     }
 }

@@ -23,6 +23,7 @@
             public const string UserEndpoint = UsersEndpoint + "/{id}";
             public const string UserByFieldEndpoint = UsersEndpoint + "/{field}/{value}";
             public const string OrderByUserIdEndpoint = UserEndpoint + "/order";
+            public const string RatingByUserIdEndpoint = UserEndpoint + "/rating";
         }
         public static class ProductImage
         {
