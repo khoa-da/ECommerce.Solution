@@ -74,6 +74,13 @@ namespace ECommerce.API.Controllers
             var cart = await _productService.AddToCart(addToCartProductRequest.ProductId, addToCartProductRequest.Quantity, addToCartProductRequest.StoreId);
             return Ok(cart);
         }
+        [HttpPatch(ApiEndPointConstant.Product.ProductEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDetailResponse))]
+        public async Task<IActionResult> Update(Guid id, [FromForm] ProductRequest request)
+        {
+            var response = await _productService.Update(id, request);
+            return Ok(response);
+        }
 
     }
 }

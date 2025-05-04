@@ -393,7 +393,7 @@ namespace ECommerce.Core.Services.Implementations
             }
             var productResponse = _mapper.Map<ProductDetailResponse>(product);
             productResponse.CategoryName = product.Category.Name;
-            productResponse.ImageUrls = product.ProductImages.Select(x => x.ImageUrl).ToList();
+            productResponse.ImageUrls = product.ProductImages.Where(x => x.Status == ProductImageEnum.Status.Active.ToString()).Select(x => x.ImageUrl).ToList();
 
             var productRatingResponse = new List<RatingResponse>();
             foreach (var rating in product.Ratings)
@@ -407,9 +407,93 @@ namespace ECommerce.Core.Services.Implementations
             return productResponse;
         }
 
-        public Task<ProductResponse> Update(Guid id, ProductRequest request)
+        public async Task<ProductResponse> Update(Guid id, ProductRequest request)
         {
-            throw new NotImplementedException();
+            // Find the existing product
+            var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(
+                predicate: x => x.Id == id,
+                include: x => x.Include(x => x.Category).Include(x => x.ProductImages)
+            );
+
+            if (product == null)
+            {
+                throw new Exception("Product not found");
+            }
+
+            // Validate category exists if CategoryId is provided
+            if (request.CategoryId != Guid.Empty)
+            {
+                await ValidateCategoryAsync(request.CategoryId);
+            }
+
+            // Update product properties, preserving existing values for nulls
+            product.Name = request.Name; // Name is required so always update
+            product.CategoryId = request.CategoryId != Guid.Empty ? request.CategoryId : product.CategoryId;
+            product.Description = request.Description ?? product.Description;
+            product.Price = request.Price > 0 ? request.Price : product.Price;
+            product.Gender = request.Gender?.ToString() ?? product.Gender;
+            product.Size = request.Size?.ToString() ?? product.Size;
+            product.Stock = request.Stock > 0 ? request.Stock : product.Stock;
+            product.Brand = request.Brand?.ToString() ?? product.Brand;
+            product.Sku = request.Sku ?? product.Sku;
+            product.Tags = request.Tags ?? product.Tags;
+            product.Material = request.Material ?? product.Material;
+            product.UpdatedDate = DateTime.UtcNow.AddHours(7);
+
+            // Handle product images if provided
+            List<ProductImage> updatedImages = new List<ProductImage>();
+            if (request.ProductImageBase64 != null && request.ProductImageBase64.Count > 0)
+            {
+                // If we have existing images, update their status to deleted
+                if (product.ProductImages != null && product.ProductImages.Any())
+                {
+                    foreach (var existingImage in product.ProductImages)
+                    {
+                        existingImage.Status = ProductImageEnum.Status.Deleted.ToString();
+                        _unitOfWork.GetRepository<ProductImage>().UpdateAsync(existingImage);
+                    }
+                }
+
+                // Process and save the new images
+                updatedImages = await ProcessAndSaveProductImagesAsync(product, request.ProductImageBase64);
+            }
+
+            // Update the product in the database
+            _unitOfWork.GetRepository<Product>().UpdateAsync(product);
+
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new Exception("Failed to update product");
+            }
+
+            // Prepare the response
+            var category = await _unitOfWork.GetRepository<Category>().SingleOrDefaultAsync(
+                predicate: x => x.Id == product.CategoryId
+            );
+
+            var productResponse = _mapper.Map<ProductResponse>(product);
+            productResponse.CategoryName = category?.Name ?? string.Empty;
+
+            // If we have updated images, get the main image URL
+            if (updatedImages.Any())
+            {
+                var mainImage = updatedImages.FirstOrDefault(x => x.IsMain);
+                if (mainImage != null)
+                {
+                    productResponse.MainImage = mainImage.ImageUrl;
+                }
+            }
+            else if (product.ProductImages != null && product.ProductImages.Any(x => x.Status == ProductImageEnum.Status.Active.ToString()))
+            {
+                // If no new images were uploaded, use the first active main image
+                var mainImage = product.ProductImages.FirstOrDefault(x => x.IsMain && x.Status == ProductImageEnum.Status.Active.ToString());
+                if (mainImage != null)
+                {
+                    productResponse.MainImage = mainImage.ImageUrl;
+                }
+            }
+
+            return productResponse;
         }
 
         public async Task<ProductDetailResponse> GetProductByProductIdAndStoreId(Guid productId, Guid storeId)

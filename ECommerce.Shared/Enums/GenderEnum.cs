@@ -4,6 +4,6 @@
     {
         Male = 0,
         FeMale = 1,
-        Orther = 2
+        Other = 2
     }
 }
