@@ -1,5 +1,6 @@
 ﻿using ECommerce.Core.Services.Interfaces;
 using ECommerce.Shared.Contants;
+using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Order;
 using ECommerce.Shared.Payload.Response.Order;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,13 @@ namespace ECommerce.API.Controllers
         public async Task<IActionResult> CancelOrder([FromBody] CancelOrderRequest cancelOrderRequest)
         {
             var response = await _orderService.CancelOrder(cancelOrderRequest.OrderId, cancelOrderRequest.Reason);
+            return Ok(response);
+        }
+        [HttpGet(ApiEndPointConstant.Order.OrdersEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<OrderResponse>))]
+        public async Task<IActionResult> GetAll(string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var response = await _orderService.GetAll(search, orderBy, page, size);
             return Ok(response);
         }
     }

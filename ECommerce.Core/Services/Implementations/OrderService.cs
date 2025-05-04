@@ -153,10 +153,87 @@ namespace ECommerce.Core.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<IPaginate<OrderResponse>> GetAll(string? search, string? orderBy, int page, int size)
+        public async Task<IPaginate<OrderResponse>> GetAll(string? search, string? orderBy, int page, int size)
         {
-            throw new NotImplementedException();
+            search = search?.Trim().ToLower();
+
+            Func<IQueryable<Order>, IOrderedQueryable<Order>> orderByFunc = x => x.OrderByDescending(o => o.OrderDate);
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                switch (orderBy.ToLower())
+                {
+                    case "order_date_asc":
+                        orderByFunc = x => x.OrderBy(o => o.OrderDate);
+                        break;
+                    case "order_date_desc":
+                        orderByFunc = x => x.OrderByDescending(o => o.OrderDate);
+                        break;
+                    case "total_amount_asc":
+                        orderByFunc = x => x.OrderBy(o => o.TotalAmount);
+                        break;
+                    case "total_amount_desc":
+                        orderByFunc = x => x.OrderByDescending(o => o.TotalAmount);
+                        break;
+                }
+            }
+
+            var orders = await _unitOfWork.GetRepository<Order>().GetPagingListAsync(
+                selector: x => new OrderResponse
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    FirstName = x.User.FirstName,
+                    LastName = x.User.LastName,
+                    Email = x.User.Email,
+                    PhoneNumber = x.User.PhoneNumber,
+                    StoreId = x.StoreId,
+                    StoreName = x.Store.Name,
+                    StorePhoneNumber = x.Store.PhoneNumber,
+                    OrderNumber = x.OrderNumber,
+                    OrderDate = x.OrderDate,
+                    TotalAmount = x.TotalAmount,
+                    PaymentStatus = x.PaymentStatus,
+                    OrderStatus = x.OrderStatus,
+                    ShippingAddress = x.ShippingAddress,
+                    PaymentMethod = x.PaymentMethod,
+                    ShippingMethod = x.ShippingMethod,
+                    OrderItems = x.OrderItems.Select(oi => new OrderItemResponse
+                    {
+                        Id = oi.Id,
+                        OrderId = oi.OrderId,
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        CategoryId = oi.Product.CategoryId,
+                        CategoryName = oi.Product.Category.Name,
+                        Gender = oi.Product.Gender,
+                        Size = oi.Product.Size,
+                        Brand = oi.Product.Brand,
+                        Sku = oi.Product.Sku,
+                        Tags = oi.Product.Tags,
+                        Material = oi.Product.Material,
+                        Quantity = oi.Quantity,
+                        Price = oi.Price,
+                        TotalAmount = oi.TotalAmount
+                    }).ToList(),
+                    Notes = x.Notes
+                },
+                predicate: x => string.IsNullOrEmpty(search)
+                    || x.OrderNumber.ToLower().Contains(search)
+                    || x.OrderStatus.ToLower().Equals(search)
+                    || x.User.FirstName.ToLower().Contains(search)
+                    || x.User.LastName.ToLower().Contains(search),
+                orderBy: orderByFunc,
+                include: x => x
+                    .Include(o => o.User)
+                    .Include(o => o.Store)
+                    .Include(o => o.OrderItems).ThenInclude(oi => oi.Product).ThenInclude(p => p.Category),
+                page: page,
+                size: size
+            );
+
+            return orders;
         }
+
 
         public async Task<OrderResponse> GetById(Guid id)
         {

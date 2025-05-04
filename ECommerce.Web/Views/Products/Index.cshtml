@@ -1,59 +1,424 @@
 ﻿@model ECommerce.Shared.Paginate.Paginate<ECommerce.Shared.Payload.Response.Product.ProductResponse>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Products - TOTE TALES";
+    
+    // Get category data from API (to be implemented)
+    // var parentCategories = ViewBag.ParentCategories as List<ECommerce.Shared.Payload.Response.Category.CategoryResponse> ?? new();
+    // var childCategories = ViewBag.ChildCategories as Dictionary<Guid, List<ECommerce.Shared.Payload.Response.Category.CategoryResponse>> ?? new();
+    
+    var parentCategories = ViewData["ParentCategories"] as IEnumerable<ECommerce.Shared.Payload.Response.Category.CategoryResponse>;
+    var childCategories = ViewData["ChildCategories"] as Dictionary<Guid, List<ECommerce.Shared.Payload.Response.Category.CategoryResponse>>;
+
+
 }
 
-<h1>Index</h1>
+<div class="container mx-auto px-4 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Products Our Collection</h1>
+        <p class="text-gray-600 mt-2">Discover our handcrafted tote bags for every style and occasion</p>
+        <div class="w-24 h-1 bg-amber-500 mt-4"></div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar - Search & Filters -->
+        <div class="w-full lg:w-1/4">
+            <div class="bg-white rounded-xl shadow-sm p-6 sticky top-4">
+                <!-- Search Box -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-3">Search</h3>
+                    <form action="@Url.Action("Search", "Products")" method="get">
+                        <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                            <input 
+                                type="text" 
+                                name="query" 
+                                placeholder="Search products..." 
+                                class="flex-1 px-4 py-2 focus:outline-none"
+                                value="@ViewBag.SearchQuery">
+                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white p-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Name)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Description)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Price)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].CreatedDate)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].UpdatedDate)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Gender)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Size)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Stock)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Brand)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Sku)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Tags)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Material)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].Status)</th>
-            <th>@Html.DisplayNameFor(model => model.Items[0].CategoryName)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Items)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>@item.Price</td>
-                <td>@item.CreatedDate?.ToString("yyyy-MM-dd")</td>
-                <td>@item.UpdatedDate?.ToString("yyyy-MM-dd")</td>
-                <td>@item.Gender</td>
-                <td>@item.Size</td>
-                <td>@item.Stock</td>
-                <td>@item.Brand</td>
-                <td>@item.Sku</td>
-                <td>@item.Tags</td>
-                <td>@item.Material</td>
-                <td>@item.Status</td>
-                <td>@item.CategoryName</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                <!-- Advanced Search -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-3">Advanced Search</h3>
+                    <form action="@Url.Action("AdvancedSearch", "Products")" method="get" id="advancedSearchForm">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">SKU</label>
+                                <input type="text" name="sku" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Enter SKU">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">Tag</label>
+                                <input type="text" name="tag" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Enter tag">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">Price Range</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" name="minPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Min">
+                                    <span>-</span>
+                                    <input type="number" name="maxPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Max">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-300">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Main Categories -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-3">Categories</h3>
+                    <div class="space-y-2" id="mainCategories">
+                        @foreach (var parent in parentCategories)
+                        {
+                            var parentId = parent.Id;
+                            var parentName = parent.Name;
+                            var count = Model?.Items.Count(p => p.CategoryName == parentName) ?? 0;
+
+                            <div class="flex items-center justify-between group">
+                                <div class="flex items-center justify-between w-full">
+                                    <a href="@Url.Action("ParentCategory", "Products", new { parentCategoryId = parentId })"
+                                       class="text-gray-700 hover:text-amber-600 transition-colors duration-200 flex items-center">
+                                        <span>@parentName</span>
+                                    </a>
+                                    <div class="flex items-center">
+                                        <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full mr-2">@count</span>
+                                        <button class="category-toggle text-gray-400 hover:text-amber-600" data-category="@parentId">
+                                            <svg class="h-4 w-4 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ml-4 space-y-1 hidden" id="subcategory-@parentId">
+                                @if (childCategories.ContainsKey(parentId))
+                                {
+                                    foreach (var sub in childCategories[parentId])
+                                    {
+                                        var subCount = Model?.Items.Count(p => p.CategoryName == sub.Name) ?? 0;
+
+                                        <div class="flex items-center justify-between">
+                                            <a href="@Url.Action("Category", "Products", new { categoryId = sub.Id })"
+                                               class="text-gray-600 hover:text-amber-600 transition-colors duration-200 flex items-center text-sm">
+                                                <span>@sub.Name</span>
+                                            </a>
+                                            <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">@subCount</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-gray-500 text-sm">No subcategories available</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Tags Filter -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-3">Product Tags</h3>
+                    <div class="space-y-2">
+                        @{
+                            var tags = Model?.Items
+                                .SelectMany(p => p.Tags?.Split(',') ?? Array.Empty<string>())
+                                .Select(t => t.Trim())
+                                .Where(t => !string.IsNullOrEmpty(t))
+                                .Distinct()
+                                .Take(8)
+                                .ToList() ?? new List<string>();
+                        }
+
+                        @if (tags.Any())
+                        {
+                            foreach (var tag in tags)
+                            {
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="tag-@tag.ToLower().Replace(" ", "-")" name="tags" value="@tag" 
+                                           class="mr-2 text-amber-500 focus:ring-amber-500 filter-checkbox" data-filter="tag">
+                                    <label for="tag-@tag.ToLower().Replace(" ", "-")" class="text-gray-700">@tag</label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-gray-500">No tags available</div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Brands Filter -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-3">Brands</h3>
+                    <div class="space-y-2">
+                        @{
+                            var brands = Model?.Items
+                                .Select(p => p.Brand)
+                                .Where(b => !string.IsNullOrEmpty(b))
+                                .Distinct()
+                                .Take(5)
+                                .ToList() ?? new List<string>();
+                        }
+
+                        @if (brands.Any())
+                        {
+                            foreach (var brand in brands)
+                            {
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="brand-@brand.ToLower().Replace(" ", "-")" name="brands" value="@brand" 
+                                           class="mr-2 text-amber-500 focus:ring-amber-500 filter-checkbox" data-filter="brand">
+                                    <label for="brand-@brand.ToLower().Replace(" ", "-")" class="text-gray-700">@brand</label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-gray-500">No brands available</div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Apply Filters Button -->
+                <button id="applyFilters" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-300">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content - Products -->
+        <div class="w-full lg:w-3/4">
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div class="flex items-center space-x-2">
+        <span class="text-gray-600">Sort by:</span>
+                    <select id="sortBy" name="sortBy" class="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <option value="created_desc" selected="@(ViewBag.SortBy == "created_desc")">Newest</option>
+                        <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">Price: Low to High</option>
+                        <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Price: High to Low</option>
+                        <option value="name_asc" selected="@(ViewBag.SortBy == "name_asc")">Name: A-Z</option>
+                        <option value="name_desc" selected="@(ViewBag.SortBy == "name_desc")">Name: Z-A</option>
+                    </select>
+    </div>
+    <div class="flex items-center gap-2">
+        <span class="text-gray-600">Show:</span>
+        <select id="pageSize" name="pageSize" class="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-amber-500" onchange="applySorting()">
+                        <option value="12" selected="@(ViewBag.PageSize == 12)">12</option>
+                        <option value="24" selected="@(ViewBag.PageSize == 24)">24</option>
+                        <option value="36" selected="@(ViewBag.PageSize == 36)">36</option>
+        </select>
+        <div class="flex space-x-2 ml-2">
+            <button id="viewList" class="p-1 bg-gray-200 text-gray-600 rounded hover:bg-amber-500 hover:text-white" title="List View">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+            </button>
+            <button id="viewGrid" class="p-1 bg-amber-500 text-white rounded hover:bg-amber-600" title="Grid View">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+            <!-- Active Filters Section -->
+            <div class="mb-6" id="activeFilters">
+                @if (ViewBag.ActiveFilters != null)
+                {
+                    <div>ActiveFilters Count: @ViewBag.ActiveFilters.Count</div>
+                    foreach (var filter in ViewBag.ActiveFilters)
+                    {
+                        <div>@filter.Key: @filter.Value</div>
+                    }
+                }
+                else
+                {
+                    <div>ActiveFilters is null</div>
+                }
+                @if (Model?.Items != null)
+                {
+                    <div>Products count: @Model.Items.Count()</div>
+                }
+                else
+                {
+                    <div>No products available</div>
+                }
+                @if (ViewBag.ActiveFilters != null && ViewBag.ActiveFilters.Count > 0)
+                {
+                    <div class="bg-white rounded-xl shadow-sm p-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">Active Filters</h3>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach (var filter in ViewBag.ActiveFilters)
+                            {
+                                <div class="flex items-center bg-amber-50 border border-amber-200 text-amber-800 px-3 py-1 rounded-full text-sm">
+                                    <span>@filter.Key: @filter.Value</span>
+                                    <button class="ml-2 text-amber-600 hover:text-amber-800" data-remove-filter="@filter.Key:@filter.Value">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            }
+                            <button id="clearAllFilters" class="text-amber-600 hover:text-amber-800 text-sm font-medium underline ml-2">Clear All</button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Products Grid View (default) -->
+            <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @if (Model?.Items != null && Model.Items.Any())
+                {
+                    foreach (var product in Model.Items)
+                    {
+                        <a href="@Url.Action("Details", "Products", new { id = product.Id })"
+                           class="group bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+                            <div class="relative h-64 bg-gray-100 overflow-hidden">
+                                @if (!string.IsNullOrEmpty(product.MainImage))
+                                {
+                                    <img src="@product.MainImage" alt="@product.Name" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                }
+                                else
+                                {
+                                    <div class="flex items-center justify-center h-full text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                    </div>
+                                }
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded-full">@product.CategoryName</span>
+                                </div>
+                                <!-- Quick View Button -->
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <button type="button" class="quick-view-btn bg-white hover:bg-amber-500 hover:text-white text-gray-800 font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-300" data-product-id="@product.Id">
+                                        Quick View
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1 truncate">@(string.IsNullOrEmpty(product.Name) ? "Product Name" : product.Name)</h3>
+                                <div class="flex items-center text-gray-500 text-sm mb-3">
+                                    <span>@product.Brand</span>
+                                    @if (!string.IsNullOrEmpty(product.Size))
+                                    {
+                                        <span class="mx-2">•</span>
+                                        <span>@product.Size</span>
+                                    }
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-2">@(string.IsNullOrEmpty(product.Description) ? "No description available" : product.Description)</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-lg font-bold text-gray-900">@(product.Price > 0 ? $"${product.Price}" : "Price on request")</span>
+                                    <span class="text-sm text-gray-500">Stock: @product.Stock</span>
+                                </div>
+                                <!-- Additional Product Info -->
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between">
+                                    <div class="text-xs text-gray-500">SKU: @product.Sku</div>
+                                    <div class="text-xs text-gray-500">Tags: @product.Tags</div>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="col-span-full text-center py-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <h3 class="text-xl font-medium text-gray-700">No products found</h3>
+                        <p class="text-gray-500 mt-2">Try adjusting your search or filter criteria</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Products List View (hidden by default) -->
+            <div id="productsList" class="hidden space-y-6">
+                @if (Model?.Items != null && Model.Items.Any())
+                {
+                    foreach (var product in Model.Items)
+                    {
+                        <a href="@Url.Action("Details", "Products", new { id = product.Id })"
+                           class="group bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg flex flex-col md:flex-row">
+                            <div class="relative h-64 md:h-auto md:w-1/3 bg-gray-100 overflow-hidden">
+                                @if (!string.IsNullOrEmpty(product.MainImage))
+                                {
+                                    <img src="@product.MainImage" alt="@product.Name" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                }
+                                else
+                                {
+                                    <div class="flex items-center justify-center h-full text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                    </div>
+                                }
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded-full">@product.CategoryName</span>
+                                </div>
+                            </div>
+                            <div class="p-5 md:w-2/3">
+                                <div class="flex flex-col md:flex-row justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">@(string.IsNullOrEmpty(product.Name) ? "Product Name" : product.Name)</h3>
+                                        <div class="flex items-center text-gray-500 text-sm mb-3">
+                                            <span>@product.Brand</span>
+                                            @if (!string.IsNullOrEmpty(product.Size))
+                                            {
+                                                <span class="mx-2">•</span>
+                                                <span>@product.Size</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 md:mt-0 md:text-right">
+                                        <span class="text-lg font-bold text-gray-900">@(product.Price > 0 ? $"${product.Price}" : "Price on request")</span>
+                                        <div class="text-sm text-gray-500">Stock: @product.Stock</div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-sm my-4">@(string.IsNullOrEmpty(product.Description) ? "No description available" : product.Description)</p>
+                                <div class="flex flex-wrap justify-between items-center pt-4 border-t border-gray-100">
+                                    <div class="flex space-x-4 text-xs text-gray-500">
+                                        <div>SKU: @product.Sku</div>
+                                        <div>Tags: @product.Tags</div>
+                                    </div>
+                                    <button type="button" class="quick-view-btn mt-2 md:mt-0 bg-white hover:bg-amber-500 hover:text-white text-gray-800 border border-gray-300 font-semibold px-4 py-2 rounded-md shadow-sm transition-colors duration-300" data-product-id="@product.Id">
+                                        Quick View
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <h3 class="text-xl font-medium text-gray-700">No products found</h3>
+                        <p class="text-gray-500 mt-2">Try adjusting your search or filter criteria</p>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelectorAll(".category-toggle").forEach(button => {
+        button.addEventListener("click", function () {
+            const slug = button.dataset.category;
+            const subEl = document.getElementById("subcategory-" + slug);
+            if (subEl) subEl.classList.toggle("hidden");
+        });
+    });
+</script>
+

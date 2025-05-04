@@ -59,6 +59,7 @@ public static class DependencyServices
         services.AddScoped<IStoreProductService, StoreProductService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IRatingService, RatingService>();
 
 
         return services;
