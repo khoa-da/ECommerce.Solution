@@ -219,9 +219,10 @@ namespace ECommerce.Core.Services.Implementations
             );
             return products;
         }
-        public async Task<IPaginate<ProductResponse>> GetAll(string? search, string? orderBy, int page, int size)
+        public async Task<IPaginate<ProductResponse>> GetAll(string? search, string? orderBy, string? status, int page, int size)
         {
             search = search?.Trim().ToLower();
+            status = status?.Trim();
 
             Func<IQueryable<Product>, IOrderedQueryable<Product>> orderByFunc = q => q.OrderByDescending(x => x.CreatedDate);
 
@@ -249,6 +250,7 @@ namespace ECommerce.Core.Services.Implementations
                         break;
                 }
             }
+
             var products = await _unitOfWork.GetRepository<Product>().GetPagingListAsync(
                 selector: x => new ProductResponse
                 {
@@ -268,15 +270,21 @@ namespace ECommerce.Core.Services.Implementations
                     Tags = x.Tags,
                     Material = x.Material,
                     Status = x.Status,
-                    MainImage = x.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
+                    MainImage = x.ProductImages
+                        .Where(x => x.Status == ProductImageEnum.Status.Active.ToString())
+                        .FirstOrDefault(x => x.IsMain).ImageUrl
                 },
-                predicate: x => string.IsNullOrEmpty(search) || x.Name.ToLower().Contains(search),
+                predicate: x =>
+                    (string.IsNullOrEmpty(search) || x.Name.ToLower().Contains(search)) &&
+                    (string.IsNullOrEmpty(status) || x.Status == status),
                 orderBy: orderByFunc,
                 page: page,
                 size: size
             );
+
             return products;
         }
+
 
         public async Task<IPaginate<ProductResponse>> GetByBrand(string brand, int page, int size)
         {
@@ -303,7 +311,7 @@ namespace ECommerce.Core.Services.Implementations
                     Tags = x.Tags,
                     Material = x.Material,
                     Status = x.Status,
-                    MainImage = x.ProductImages.FirstOrDefault(x => x.IsMain).ImageUrl
+                    MainImage = x.ProductImages.Where(x => x.Status == ProductImageEnum.Status.Active.ToString()).FirstOrDefault(x => x.IsMain).ImageUrl
                 },
                 predicate: x => x.Brand != null && x.Brand.ToLower().Equals(brand.ToLower()),
                 orderBy: q => q.OrderByDescending(x => x.CreatedDate),
@@ -363,7 +371,7 @@ namespace ECommerce.Core.Services.Implementations
                     Tags = x.Tags,
                     Material = x.Material,
                     Status = x.Status,
-                    MainImage = x.ProductImages.FirstOrDefault(img => img.IsMain).ImageUrl
+                    MainImage = x.ProductImages.Where(x => x.Status == ProductImageEnum.Status.Active.ToString()).FirstOrDefault(img => img.IsMain).ImageUrl
                 },
                 predicate: x => x.CategoryId == categoryId &&
                                 (string.IsNullOrEmpty(search) ||
@@ -407,12 +415,12 @@ namespace ECommerce.Core.Services.Implementations
             return productResponse;
         }
 
-        public async Task<ProductResponse> Update(Guid id, ProductRequest request)
+        public async Task<ProductResponse> Update(Guid id, UpdateProductRequest request)
         {
             // Find the existing product
             var product = await _unitOfWork.GetRepository<Product>().SingleOrDefaultAsync(
                 predicate: x => x.Id == id,
-                include: x => x.Include(x => x.Category).Include(x => x.ProductImages)
+                include: x => x.Include(x => x.ProductImages)
             );
 
             if (product == null)
@@ -438,6 +446,7 @@ namespace ECommerce.Core.Services.Implementations
             product.Sku = request.Sku ?? product.Sku;
             product.Tags = request.Tags ?? product.Tags;
             product.Material = request.Material ?? product.Material;
+            product.Status = request.Status ?? product.Status;
             product.UpdatedDate = DateTime.UtcNow.AddHours(7);
 
             // Handle product images if provided
@@ -495,6 +504,8 @@ namespace ECommerce.Core.Services.Implementations
 
             return productResponse;
         }
+
+        
 
         public async Task<ProductDetailResponse> GetProductByProductIdAndStoreId(Guid productId, Guid storeId)
         {

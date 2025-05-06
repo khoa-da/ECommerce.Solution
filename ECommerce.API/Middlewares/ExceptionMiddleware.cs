@@ -45,11 +45,6 @@ namespace ECommerce.API.Middlewares
                     response.Message = "NotFound";
                     break;
 
-                case UnauthorizedAccessException:
-                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    response.Message = "Unauthorized";
-                    break;
-
                 case ArgumentException:
                 case InvalidOperationException:
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

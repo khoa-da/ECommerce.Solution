@@ -48,7 +48,14 @@ namespace ECommerce.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductResponse>))]
         public async Task<IActionResult> GetAll(string? search, string? orderBy, int page = 1, int size = 10)
         {
-            var response = await _productService.GetAll(search, orderBy, page, size);
+            var response = await _productService.GetAll(search, orderBy, ProductEnum.ProductStatus.Active.ToString() ,page, size);
+            return Ok(response);
+        }
+        [HttpGet(ApiEndPointConstant.Product.ProductsAdminEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<ProductResponse>))]
+        public async Task<IActionResult> GetAllForAdmin(string? search, string? orderBy, int page = 1, int size = 10)
+        {
+            var response = await _productService.GetAll(search, orderBy, null, page, size);
             return Ok(response);
         }
         [HttpGet(ApiEndPointConstant.Product.ProductByBrandIdEndpoint)]
@@ -76,9 +83,17 @@ namespace ECommerce.API.Controllers
         }
         [HttpPatch(ApiEndPointConstant.Product.ProductEndpoint)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDetailResponse))]
-        public async Task<IActionResult> Update(Guid id, [FromForm] ProductRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateProductRequest request)
         {
             var response = await _productService.Update(id, request);
+            return Ok(response);
+        }
+
+        [HttpDelete(ApiEndPointConstant.Product.ProductEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var response = await _productService.Delete(id);
             return Ok(response);
         }
 

@@ -8,6 +8,7 @@ using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Category;
 using ECommerce.Shared.Payload.Response.Category;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
@@ -296,11 +297,11 @@ namespace ECommerce.Core.Services.Implementations
             return categoryResponse;
         }
 
-        public async Task<IPaginate<CategoryResponse>> GetAllParentCategory(int page, int size)
+        public async Task<IPaginate<CategoryResponse>> GetAllParentCategory(string? status, int page, int size)
         {
             var categories = await _unitOfWork.GetRepository<Category>().GetPagingListAsync(
                 selector: x => _mapper.Map<CategoryResponse>(x),
-                predicate: x => x.ParentId == null,
+                predicate: x => x.ParentId == null && (status == null || x.Status == status),
                 orderBy: q => q.OrderByDescending(x => x.CreatedDate),
                 page: page,
                 size: size
@@ -309,16 +310,59 @@ namespace ECommerce.Core.Services.Implementations
             return categories;
         }
 
-        public async Task<IPaginate<CategoryResponse>> GetAllChildrenCategory(int page, int size)
+        public async Task<IPaginate<CategoryResponse>> GetAllChildrenCategory(string? status, int page, int size)
         {
             var categories = await _unitOfWork.GetRepository<Category>().GetPagingListAsync(
                 selector: x => _mapper.Map<CategoryResponse>(x),
-                predicate: x => x.ParentId != null,
+                predicate: x => x.ParentId != null && (status == null || x.Status == status),
                 orderBy: q => q.OrderByDescending(x => x.CreatedDate),
                 page: page,
                 size: size
             );
+            // B2: Lấy toàn bộ các ParentId duy nhất
+            var parentIds = categories.Items
+                .Where(c => c.ParentId.HasValue)
+                .Select(c => c.ParentId.Value)
+                .Distinct()
+                .ToList();
+
+            // B3: Truy vấn toàn bộ parent categories một lần
+            var parentCategories = await _unitOfWork.GetRepository<Category>().GetListAsync(
+                predicate: x => parentIds.Contains(x.Id)
+            );
+
+            // B4: Tạo Dictionary để map nhanh
+            var parentDict = parentCategories.ToDictionary(x => x.Id, x => x.Name);
+
+            // B5: Gán lại ParentCategoryName
+            foreach (var category in categories.Items)
+            {
+                if (category.ParentId.HasValue && parentDict.TryGetValue(category.ParentId.Value, out var parentName))
+                {
+                    category.ParentCategoryName = parentName;
+                }
+            }
+
             return categories;
+
+            //return categories;
+        }
+
+        public async Task<CategoryResponse> DeleteCategory(Guid id)
+        {
+            var cate = await _unitOfWork.GetRepository<Category>().SingleOrDefaultAsync(predicate: x => x.Id == id);
+            if(cate == null)
+            {
+                throw new EntityNotFoundException("No category found");
+            }
+            cate.Status = CategoryEnum.CategoryStatus.Inactive.ToString();
+
+            _unitOfWork.GetRepository<Category>().UpdateAsync(cate);
+            if (await _unitOfWork.CommitAsync() <= 0)
+            {
+                throw new DbUpdateConcurrencyException("Failed to update category");
+            }
+            return _mapper.Map<CategoryResponse>(cate);
         }
     }
 }

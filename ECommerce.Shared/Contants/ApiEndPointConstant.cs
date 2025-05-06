@@ -36,6 +36,7 @@
         public static class Product
         {
             public const string ProductsEndpoint = ApiEndpoint + "/products";
+            public const string ProductsAdminEndpoint = ApiEndpoint + "/products/admin";
             public const string ProductEndpoint = ProductsEndpoint + "/{id}";
             public const string ProductByBrandIdEndpoint = ProductsEndpoint + "/brand/{brand}";
             public const string ImagesInProductEndpoint = ProductEndpoint + "/images";
@@ -51,6 +52,8 @@
             public const string ProductsInParentCategoryEndpoint = CategoriesEndpoint + "/parent/{parentId}/products";
             public const string AllChildrenCategoryEndpoint = CategoriesEndpoint + "/children";
             public const string AllParentCategoryEndpoint = CategoriesEndpoint + "/parents";
+            public const string AllChildrenCategoryAdminEndpoint = CategoriesEndpoint + "/children/admin";
+            public const string AllParentCategoryAdminEndpoint = CategoriesEndpoint + "/parents/admin";
         }
         public static class Store
         {

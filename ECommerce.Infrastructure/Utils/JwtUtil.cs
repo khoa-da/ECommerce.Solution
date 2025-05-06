@@ -34,6 +34,7 @@ namespace ECommerce.Infrastructure.Utils
 
             // Thời gian hết hạn
             var accessTokenExpires = DateTime.UtcNow.AddHours(ACCESS_TOKEN_HOURS);
+            //var accessTokenExpires = DateTime.UtcNow.AddSeconds(30);
             var refreshTokenExpires = DateTime.UtcNow.AddDays(REFRESH_TOKEN_DAYS);
 
             // Tạo claims cơ bản

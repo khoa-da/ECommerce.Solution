@@ -45,32 +45,32 @@
                 </div>
 
                 <!-- Advanced Search -->
-                <div class="mb-6">
-                    <h3 class="font-semibold text-gray-800 mb-3">Advanced Search</h3>
-                    <form action="@Url.Action("AdvancedSearch", "Products")" method="get" id="advancedSearchForm">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">SKU</label>
-                                <input type="text" name="sku" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Enter SKU">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Tag</label>
-                                <input type="text" name="tag" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Enter tag">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Price Range</label>
-                                <div class="flex items-center space-x-2">
-                                    <input type="number" name="minPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Min">
-                                    <span>-</span>
-                                    <input type="number" name="maxPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Max">
-                                </div>
-                            </div>
-                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-300">
-                                Search
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                @* <div class="mb-6"> *@
+                @*     <h3 class="font-semibold text-gray-800 mb-3">Advanced Search</h3> *@
+                @*     <form action="@Url.Action("AdvancedSearch", "Products")" method="get" id="advancedSearchForm"> *@
+                @*         <div class="space-y-4"> *@
+                @*             <div> *@
+                @*                 <label class="block text-sm text-gray-600 mb-1">SKU</label> *@
+                @*                 <input type="text" name="sku" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Enter SKU"> *@
+                @*             </div> *@
+                @*             <div> *@
+                @*                 <label class="block text-sm text-gray-600 mb-1">Tag</label> *@
+                @*                 <input type="text" name="tag" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Enter tag"> *@
+                @*             </div> *@
+                @*             <div> *@
+                @*                 <label class="block text-sm text-gray-600 mb-1">Price Range</label> *@
+                @*                 <div class="flex items-center space-x-2"> *@
+                @*                     <input type="number" name="minPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Min"> *@
+                @*                     <span>-</span> *@
+                @*                     <input type="number" name="maxPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="Max"> *@
+                @*                 </div> *@
+                @*             </div> *@
+                @*             <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-300"> *@
+                @*                 Search *@
+                @*             </button> *@
+                @*         </div> *@
+                @*     </form> *@
+                @* </div> *@
 
                 <!-- Main Categories -->
                 <div class="mb-6">
@@ -89,7 +89,7 @@
                                         <span>@parentName</span>
                                     </a>
                                     <div class="flex items-center">
-                                        <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full mr-2">@count</span>
+                                        @* <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full mr-2">@count</span> *@
                                         <button class="category-toggle text-gray-400 hover:text-amber-600" data-category="@parentId">
                                             <svg class="h-4 w-4 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -111,7 +111,7 @@
                                                class="text-gray-600 hover:text-amber-600 transition-colors duration-200 flex items-center text-sm">
                                                 <span>@sub.Name</span>
                                             </a>
-                                            <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">@subCount</span>
+                                            @* <span class="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">@subCount</span> *@
                                         </div>
                                     }
                                 }
@@ -124,73 +124,43 @@
                     </div>
                 </div>
 
-                <!-- Tags Filter -->
-                <div class="mb-6">
-                    <h3 class="font-semibold text-gray-800 mb-3">Product Tags</h3>
-                    <div class="space-y-2">
-                        @{
-                            var tags = Model?.Items
-                                .SelectMany(p => p.Tags?.Split(',') ?? Array.Empty<string>())
-                                .Select(t => t.Trim())
-                                .Where(t => !string.IsNullOrEmpty(t))
-                                .Distinct()
-                                .Take(8)
-                                .ToList() ?? new List<string>();
-                        }
-
-                        @if (tags.Any())
-                        {
-                            foreach (var tag in tags)
-                            {
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="tag-@tag.ToLower().Replace(" ", "-")" name="tags" value="@tag" 
-                                           class="mr-2 text-amber-500 focus:ring-amber-500 filter-checkbox" data-filter="tag">
-                                    <label for="tag-@tag.ToLower().Replace(" ", "-")" class="text-gray-700">@tag</label>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="text-gray-500">No tags available</div>
-                        }
-                    </div>
-                </div>
+               
 
                 <!-- Brands Filter -->
-                <div class="mb-6">
-                    <h3 class="font-semibold text-gray-800 mb-3">Brands</h3>
-                    <div class="space-y-2">
-                        @{
-                            var brands = Model?.Items
-                                .Select(p => p.Brand)
-                                .Where(b => !string.IsNullOrEmpty(b))
-                                .Distinct()
-                                .Take(5)
-                                .ToList() ?? new List<string>();
-                        }
+                @* <div class="mb-6"> *@
+                @*     <h3 class="font-semibold text-gray-800 mb-3">Brands</h3> *@
+                @*     <div class="space-y-2"> *@
+                @*         @{ *@
+                @*             var brands = Model?.Items *@
+                @*                 .Select(p => p.Brand) *@
+                @*                 .Where(b => !string.IsNullOrEmpty(b)) *@
+                @*                 .Distinct() *@
+                @*                 .Take(5) *@
+                @*                 .ToList() ?? new List<string>(); *@
+                @*         } *@
 
-                        @if (brands.Any())
-                        {
-                            foreach (var brand in brands)
-                            {
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="brand-@brand.ToLower().Replace(" ", "-")" name="brands" value="@brand" 
-                                           class="mr-2 text-amber-500 focus:ring-amber-500 filter-checkbox" data-filter="brand">
-                                    <label for="brand-@brand.ToLower().Replace(" ", "-")" class="text-gray-700">@brand</label>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="text-gray-500">No brands available</div>
-                        }
-                    </div>
-                </div>
+                @*         @if (brands.Any()) *@
+                @*         { *@
+                @*             foreach (var brand in brands) *@
+                @*             { *@
+                @*                 <div class="flex items-center"> *@
+                @*                     <input type="checkbox" id="brand-@brand.ToLower().Replace(" ", "-")" name="brands" value="@brand"  *@
+                @*                            class="mr-2 text-amber-500 focus:ring-amber-500 filter-checkbox" data-filter="brand"> *@
+                @*                     <label for="brand-@brand.ToLower().Replace(" ", "-")" class="text-gray-700">@brand</label> *@
+                @*                 </div> *@
+                @*             } *@
+                @*         } *@
+                @*         else *@
+                @*         { *@
+                @*             <div class="text-gray-500">No brands available</div> *@
+                @*         } *@
+                @*     </div> *@
+                @* </div> *@
 
                 <!-- Apply Filters Button -->
-                <button id="applyFilters" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-300">
-                    Apply Filters
-                </button>
+                @* <button id="applyFilters" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-300"> *@
+                @*     Apply Filters *@
+                @* </button> *@
             </div>
         </div>
 
@@ -230,48 +200,29 @@
 </div>
 
             <!-- Active Filters Section -->
-            <div class="mb-6" id="activeFilters">
-                @if (ViewBag.ActiveFilters != null)
-                {
-                    <div>ActiveFilters Count: @ViewBag.ActiveFilters.Count</div>
-                    foreach (var filter in ViewBag.ActiveFilters)
-                    {
-                        <div>@filter.Key: @filter.Value</div>
-                    }
-                }
-                else
-                {
-                    <div>ActiveFilters is null</div>
-                }
-                @if (Model?.Items != null)
-                {
-                    <div>Products count: @Model.Items.Count()</div>
-                }
-                else
-                {
-                    <div>No products available</div>
-                }
-                @if (ViewBag.ActiveFilters != null && ViewBag.ActiveFilters.Count > 0)
-                {
-                    <div class="bg-white rounded-xl shadow-sm p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">Active Filters</h3>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach (var filter in ViewBag.ActiveFilters)
-                            {
-                                <div class="flex items-center bg-amber-50 border border-amber-200 text-amber-800 px-3 py-1 rounded-full text-sm">
-                                    <span>@filter.Key: @filter.Value</span>
-                                    <button class="ml-2 text-amber-600 hover:text-amber-800" data-remove-filter="@filter.Key:@filter.Value">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            }
-                            <button id="clearAllFilters" class="text-amber-600 hover:text-amber-800 text-sm font-medium underline ml-2">Clear All</button>
-                        </div>
-                    </div>
-                }
-            </div>
+            @* <div class="mb-6" id="activeFilters"> *@
+                
+            @*     @if (ViewBag.ActiveFilters != null && ViewBag.ActiveFilters.Count > 0) *@
+            @*     { *@
+            @*         <div class="bg-white rounded-xl shadow-sm p-4"> *@
+            @*             <h3 class="font-semibold text-gray-800 mb-2">Active Filters</h3> *@
+            @*             <div class="flex flex-wrap gap-2"> *@
+            @*                 @foreach (var filter in ViewBag.ActiveFilters) *@
+            @*                 { *@
+            @*                     <div class="flex items-center bg-amber-50 border border-amber-200 text-amber-800 px-3 py-1 rounded-full text-sm"> *@
+            @*                         <span>@filter.Key: @filter.Value</span> *@
+            @*                         <button class="ml-2 text-amber-600 hover:text-amber-800" data-remove-filter="@filter.Key:@filter.Value"> *@
+            @*                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"> *@
+            @*                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> *@
+            @*                             </svg> *@
+            @*                         </button> *@
+            @*                     </div> *@
+            @*                 } *@
+            @*                 <button id="clearAllFilters" class="text-amber-600 hover:text-amber-800 text-sm font-medium underline ml-2">Clear All</button> *@
+            @*             </div> *@
+            @*         </div> *@
+            @*     } *@
+            @* </div> *@
 
             <!-- Products Grid View (default) -->
             <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -408,10 +359,116 @@
                     </div>
                 }
             </div>
+            <div>@Model?.TotalPages</div>
+           
+
+            <div class="mt-8">
+                @if (Model?.TotalPages > 1)
+                {
+                    <div class="bg-white rounded-xl shadow-sm p-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div class="text-sm text-gray-600">
+                                Showing <span class="font-medium">@(((Model.Page - 1) * Model.Size) + 1)</span> to
+                                <span class="font-medium">@(Math.Min(Model.Page * Model.Size, Model.Total))</span> of
+                                <span class="font-medium">@Model.Total</span> products
+                            </div>
+
+                            <div class="flex items-center space-x-1">
+                                @{
+                                    var currentPage = Model.Page;
+                                    var totalPages = Model.TotalPages;
+                                    var startPage = Math.Max(1, currentPage - 2);
+                                    var endPage = Math.Min(totalPages, currentPage + 2);
+
+                                    // Query parameters to preserve
+                                    var queryParams = new Dictionary<string, string>();
+                                    if (!string.IsNullOrEmpty(ViewBag.SearchQuery))
+                                        queryParams.Add("search", ViewBag.SearchQuery);
+                                    if (!string.IsNullOrEmpty(ViewBag.SortBy))
+                                        queryParams.Add("sortBy", ViewBag.SortBy);
+                                    if (ViewBag.PageSize != null)
+                                        queryParams.Add("pageSize", ViewBag.PageSize.ToString());
+
+                                    // First page button
+                                    <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", 1 } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                       class="@(currentPage == 1 ? "bg-gray-100 text-gray-400 cursor-default" : "bg-white text-gray-700 hover:bg-amber-50") px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                                            <path fill-rule="evenodd" d="M9.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+
+                                    <!-- Previous button -->
+                                    <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", Math.Max(1, currentPage - 1) } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                       class="@(currentPage == 1 ? "bg-gray-100 text-gray-400 cursor-default" : "bg-white text-gray-700 hover:bg-amber-50") px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+
+                                    <!-- Page numbers -->
+                                    @if (startPage > 1)
+                                    {
+                                        <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", 1 } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                           class="bg-white text-gray-700 hover:bg-amber-50 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                            1
+                                        </a>
+
+                                        @if (startPage > 2)
+                                        {
+                                            <span class="px-2 py-2 text-gray-500">...</span>
+                                        }
+                                    }
+
+                                    @for (var i = startPage; i <= endPage; i++)
+                                    {
+                                        <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", i } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                           class="@(i == currentPage ? "bg-amber-500 text-white" : "bg-white text-gray-700 hover:bg-amber-50") px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                            @i
+                                        </a>
+                                    }
+
+                                    @if (endPage < totalPages)
+                                    {
+                                        @if (endPage < totalPages - 1)
+                                        {
+                                            <span class="px-2 py-2 text-gray-500">...</span>
+                                        }
+
+                                        <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", totalPages } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                           class="bg-white text-gray-700 hover:bg-amber-50 px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                            @totalPages
+                                        </a>
+                                    }
+
+                                    <!-- Next button -->
+                                    <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", Math.Min(totalPages, currentPage + 1) } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                       class="@(currentPage == totalPages ? "bg-gray-100 text-gray-400 cursor-default" : "bg-white text-gray-700 hover:bg-amber-50") px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+
+                                    <!-- Last page button -->
+                                    <a href="@(Url.Action("Index", "Products", new Dictionary<string, object> { { "page", totalPages } }.Concat(queryParams.Select(p => new KeyValuePair<string, object>(p.Key, p.Value))).ToDictionary(x => x.Key, x => x.Value)))"
+                                       class="@(currentPage == totalPages ? "bg-gray-100 text-gray-400 cursor-default" : "bg-white text-gray-700 hover:bg-amber-50") px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clip-rule="evenodd" />
+                                            <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L14.586 10l-4.293 4.293a1 1 0 000 1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
 
         </div>
     </div>
 </div>
+
 <script>
     document.querySelectorAll(".category-toggle").forEach(button => {
         button.addEventListener("click", function () {
@@ -420,5 +477,17 @@
             if (subEl) subEl.classList.toggle("hidden");
         });
     });
+    document.getElementById('sortBy')?.addEventListener('change', function () {
+        const sortBy = this.value;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('sortBy', sortBy);
+        url.searchParams.set('page', 1); // reset page nếu có phân trang
+
+        // Cập nhật URL, reload và scroll sau khi tải lại
+        window.location.href = url.toString();
+    });
+
+    
 </script>
 

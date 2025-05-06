@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ECommerce.Core.Exceptions;
 using ECommerce.Core.Services.Interfaces;
 using ECommerce.Infrastructure.Repositories.Interfaces;
 using ECommerce.Infrastructure.Utils;
@@ -26,14 +27,14 @@ namespace ECommerce.Core.Services.Implementations
             User existingUser = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: usernameOrEmailFilter);
             if (existingUser == null)
             {
-                throw new Exception("User not found");
+                throw new EntityNotFoundException("User not found");
             }
             Expression<Func<User, bool>> searchFilter = p => (p.Username.Equals(loginRequest.UsernameOrEmail) || p.Email.Equals(loginRequest.UsernameOrEmail)) && p.PasswordHash.Equals(PasswordUtil.HashPassword(loginRequest.Password));
 
             User user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: searchFilter);
             if (user == null)
             {
-                throw new Exception("Invalid Email or Username or Password");
+                throw new BusinessRuleException("Invalid Email or Username or Password");
             }
             LoginResponse loginResponse = new LoginResponse
             {
@@ -70,7 +71,7 @@ namespace ECommerce.Core.Services.Implementations
                     DeleteCookie(_guestCartCookieName);
                 }
             }
-            catch (Exception ex)
+            catch (EntityNotFoundException ex)
             {
                 _logger.LogError(ex, "Error while merging guest cart with user cart");
             }
@@ -82,7 +83,7 @@ namespace ECommerce.Core.Services.Implementations
         public async Task<LoginResponse> RefreshToken(RefreshTokenRequest refreshTokenRequest)
         {
             var user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: x => x.Id.Equals(refreshTokenRequest.UserId));
-            if (user == null) throw new Exception("User not found");
+            if (user == null) throw new EntityNotFoundException("User not found");
             var token = JwtUtil.RefreshToken(refreshTokenRequest);
             LoginResponse loginResponse = new LoginResponse
             {

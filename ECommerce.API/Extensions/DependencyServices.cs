@@ -164,6 +164,10 @@ public static class DependencyServices
                             code = StatusCodes.Status401Unauthorized,
                             message = "You are not authorized"
                         });
+                        context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:5173");
+                        context.Response.Headers.Add("Access-Control-Allow-Credentials", "true"); // tùy
+                        context.Response.Headers.Add("Access-Control-Allow-Headers", "*"); // optional
+
                         return context.Response.WriteAsync(result);
                     }
 

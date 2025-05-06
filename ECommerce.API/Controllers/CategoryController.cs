@@ -75,21 +75,54 @@ namespace ECommerce.API.Controllers
             return Ok(response);
         }
 
-        //[CustomAuthorize(RoleEnum.Admin, RoleEnum.Customer)]
+        [CustomAuthorize(RoleEnum.Admin, RoleEnum.Customer)]
         [HttpGet(ApiEndPointConstant.Category.AllChildrenCategoryEndpoint)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<CategoryResponse>))]
         public async Task<IActionResult> GetAllChildrenCategory(int page = 1, int size = 10)
         {
-            var response = await _categoryService.GetAllChildrenCategory(page, size);
+            var response = await _categoryService.GetAllChildrenCategory(CategoryEnum.CategoryStatus.Active.ToString(), page, size);
             return Ok(response);
         }
 
-        //[CustomAuthorize(RoleEnum.Admin, RoleEnum.Customer)]
+        [CustomAuthorize(RoleEnum.Admin, RoleEnum.Customer)]
         [HttpGet(ApiEndPointConstant.Category.AllParentCategoryEndpoint)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<CategoryResponse>))]
         public async Task<IActionResult> GetAllParentCategory(int page = 1, int size = 10)
         {
-            var response = await _categoryService.GetAllParentCategory(page, size);
+            var response = await _categoryService.GetAllParentCategory(CategoryEnum.CategoryStatus.Active.ToString(), page, size);
+            return Ok(response);
+        }
+        [CustomAuthorize(RoleEnum.Admin, RoleEnum.Customer)]
+        [HttpGet(ApiEndPointConstant.Category.AllChildrenCategoryAdminEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<CategoryResponse>))]
+        public async Task<IActionResult> GetAllChildrenCategoryAdmin(int page = 1, int size = 10)
+        {
+            var response = await _categoryService.GetAllChildrenCategory(null, page, size);
+            return Ok(response);
+        }
+
+        [CustomAuthorize(RoleEnum.Admin, RoleEnum.Customer)]
+        [HttpGet(ApiEndPointConstant.Category.AllParentCategoryAdminEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IPaginate<CategoryResponse>))]
+        public async Task<IActionResult> GetAllParentCategoryAdmin(int page = 1, int size = 10)
+        {
+            var response = await _categoryService.GetAllParentCategory(null, page, size);
+            return Ok(response);
+        }
+
+        [HttpPut(ApiEndPointConstant.Category.CategoryEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponse))]
+        public async Task<IActionResult> UpdateCategory(Guid id, CategoryRequest request)
+        {
+            var response = await _categoryService.Update(id, request);
+            return Ok(response);
+        }
+
+        [HttpDelete(ApiEndPointConstant.Category.CategoryEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponse))]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            var response = await _categoryService.DeleteCategory(id);
             return Ok(response);
         }
 
