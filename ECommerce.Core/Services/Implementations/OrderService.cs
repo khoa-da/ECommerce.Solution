@@ -516,6 +516,19 @@ namespace ECommerce.Core.Services.Implementations
             return orders;
         }
 
+        public async Task<bool> UpdateOrderStatus(Guid id, string status)
+        {
+            var order = await _unitOfWork.GetRepository<Order>().SingleOrDefaultAsync(predicate: x => x.Id == id);
+            if(order != null)
+            {
+                order.OrderStatus = status;
+                _unitOfWork.GetRepository<Order>().UpdateAsync(order);
+                if (await _unitOfWork.CommitAsync() <= 0) throw new DataConflictException("Fail to update order status");
+                return true;
+            }
+            return false;
+        }
+
         public async Task<CancelOrderResponse> CancelOrder(Guid id, string? reason)
         {
             if (id == Guid.Empty)

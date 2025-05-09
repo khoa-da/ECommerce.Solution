@@ -21,6 +21,7 @@ namespace ECommerce.Web.Controllers
         public IActionResult Index()
         {
             // Gọi lại ViewCart để thống nhất logic
+            ViewBag.CartItemCount = GetCartItemCountFromCookie();
             return RedirectToAction("ViewCart");
         }
 
@@ -74,6 +75,8 @@ namespace ECommerce.Web.Controllers
             // Lưu giỏ hàng vào Cookie
             SaveCartToCookie(cartItems);
 
+            ViewBag.CartItemCount = GetCartItemCountFromCookie();
+
             TempData["Success"] = "Product added to cart successfully";
             return RedirectToAction("Details", "Products", new { id = productId });
         }
@@ -81,6 +84,7 @@ namespace ECommerce.Web.Controllers
         [HttpGet]
         public IActionResult ViewCart()
         {
+            ViewBag.CartItemCount = GetCartItemCountFromCookie();
             var cartItems = GetCartFromCookie();
             return View(cartItems);
         }
@@ -97,7 +101,7 @@ namespace ECommerce.Web.Controllers
                 SaveCartToCookie(cartItems);
                 TempData["Success"] = "Item removed from cart";
             }
-
+            ViewBag.CartItemCount = GetCartItemCountFromCookie();
             return RedirectToAction("ViewCart");
         }
 
@@ -118,7 +122,7 @@ namespace ECommerce.Web.Controllers
                 SaveCartToCookie(cartItems);
                 TempData["Success"] = "Cart updated";
             }
-
+            ViewBag.CartItemCount = GetCartItemCountFromCookie();
             return RedirectToAction("ViewCart");
         }
 
@@ -128,6 +132,7 @@ namespace ECommerce.Web.Controllers
             // Xóa cookie giỏ hàng
             Response.Cookies.Delete(CartCookieKey);
             TempData["Success"] = "Cart cleared";
+            ViewBag.CartItemCount = 0;
             return RedirectToAction("ViewCart");
         }
 
@@ -164,6 +169,11 @@ namespace ECommerce.Web.Controllers
             };
 
             Response.Cookies.Append(CartCookieKey, cartJson, cookieOptions);
+        }
+        private int GetCartItemCountFromCookie()
+        {
+            var cartItems = GetCartFromCookie();
+            return cartItems.Sum(item => item.Quantity);
         }
     }
 }

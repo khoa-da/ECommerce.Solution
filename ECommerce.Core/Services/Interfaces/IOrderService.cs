@@ -17,5 +17,6 @@ namespace ECommerce.Core.Services.Interfaces
         Task<OrderResponse> CreateV2(OrderRequest order);
         Task<IPaginate<OrderResponse>> GetAllByUserId(Guid userId, string? search, string? orderBy, int page, int size);
         Task<CancelOrderResponse> CancelOrder(Guid id, string? reason);
+        Task<bool> UpdateOrderStatus(Guid id, string status);
     }
 }

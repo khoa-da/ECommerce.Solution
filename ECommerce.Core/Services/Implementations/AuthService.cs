@@ -23,38 +23,48 @@ namespace ECommerce.Core.Services.Implementations
 
         public async Task<LoginResponse> Login(LoginRequest loginRequest)
         {
-            Expression<Func<User, bool>> usernameOrEmailFilter = p => p.Username.Equals(loginRequest.UsernameOrEmail) || p.Email.Equals(loginRequest.UsernameOrEmail);
+            // Tạo bộ lọc tìm kiếm theo username hoặc email
+            Expression<Func<User, bool>> usernameOrEmailFilter = p =>
+                p.Username.Equals(loginRequest.UsernameOrEmail) ||
+                p.Email.Equals(loginRequest.UsernameOrEmail);
+
+            // Lấy user từ cơ sở dữ liệu
             User existingUser = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: usernameOrEmailFilter);
             if (existingUser == null)
             {
                 throw new EntityNotFoundException("User not found");
             }
-            Expression<Func<User, bool>> searchFilter = p => (p.Username.Equals(loginRequest.UsernameOrEmail) || p.Email.Equals(loginRequest.UsernameOrEmail)) && p.PasswordHash.Equals(PasswordUtil.HashPassword(loginRequest.Password));
 
-            User user = await _unitOfWork.GetRepository<User>().SingleOrDefaultAsync(predicate: searchFilter);
-            if (user == null)
+            // Hash mật khẩu trước khi so sánh
+            string hashedPassword = PasswordUtil.HashPassword(loginRequest.Password);
+
+            // So sánh mật khẩu đã hash
+            if (!existingUser.PasswordHash.Equals(hashedPassword))
             {
                 throw new BusinessRuleException("Invalid Email or Username or Password");
             }
+
+            // Tạo đối tượng LoginResponse
             LoginResponse loginResponse = new LoginResponse
             {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber,
-                Status = user.Status,
-                Role = user.Role,
+                UserId = existingUser.Id,
+                Username = existingUser.Username,
+                Email = existingUser.Email,
+                FirstName = existingUser.FirstName,
+                LastName = existingUser.LastName,
+                PhoneNumber = existingUser.PhoneNumber,
+                Status = existingUser.Status,
+                Role = existingUser.Role,
             };
-            // Generate JWT token
-            var token = JwtUtil.GenerateJwtToken(user, "UserId", user.Id);
+
+            // Tạo JWT token
+            var token = JwtUtil.GenerateJwtToken(existingUser, "UserId", existingUser.Id);
             loginResponse.AccessToken = token.AccessToken;
             loginResponse.RefreshToken = token.RefreshToken;
             loginResponse.AccessTokenExpires = token.AccessTokenExpires;
             loginResponse.RefreshTokenExpires = token.RefreshTokenExpires;
 
-
+            // Xử lý giỏ hàng (nếu có)
             try
             {
                 string guestId = GetCookieValue(_guestCartCookieName);
@@ -63,11 +73,9 @@ namespace ECommerce.Core.Services.Implementations
                     var guestCart = await _cartService.GetGuestCartAsync(guestId);
                     if (guestCart != null && guestCart.Items.Count > 0)
                     {
-                        // Merge guest cart with user cart
-                        await _cartService.MergeCartsAsync(guestCart.Id, user.Id);
+                        await _cartService.MergeCartsAsync(guestCart.Id, existingUser.Id);
                     }
 
-                    // Delete guest cart cookie
                     DeleteCookie(_guestCartCookieName);
                 }
             }
@@ -77,8 +85,8 @@ namespace ECommerce.Core.Services.Implementations
             }
 
             return loginResponse;
-
         }
+
 
         public async Task<LoginResponse> RefreshToken(RefreshTokenRequest refreshTokenRequest)
         {

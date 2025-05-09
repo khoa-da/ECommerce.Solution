@@ -1,5 +1,7 @@
-﻿using ECommerce.Core.Services.Interfaces;
+﻿using ECommerce.API.Validators;
+using ECommerce.Core.Services.Interfaces;
 using ECommerce.Shared.Contants;
+using ECommerce.Shared.Enums;
 using ECommerce.Shared.Paginate;
 using ECommerce.Shared.Payload.Request.Order;
 using ECommerce.Shared.Payload.Response.Order;
@@ -51,6 +53,15 @@ namespace ECommerce.API.Controllers
         public async Task<IActionResult> GetAll(string? search, string? orderBy, int page = 1, int size = 10)
         {
             var response = await _orderService.GetAll(search, orderBy, page, size);
+            return Ok(response);
+        }
+
+        [CustomAuthorize(RoleEnum.Admin)]
+        [HttpPut(ApiEndPointConstant.Order.UpdateStatusEndPoint)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> UpdateOrderStatus(UpdateOrderStatusRequest request)
+        {
+            var response = await _orderService.UpdateOrderStatus(request.orderId, request.orderStatus);
             return Ok(response);
         }
     }

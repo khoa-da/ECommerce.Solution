@@ -45,7 +45,7 @@ namespace ECommerce.Infrastructure.Repositories.Interfaces
             int page = 1,
             int size = 10);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate = null,
-    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+                            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
 
         #endregion
 

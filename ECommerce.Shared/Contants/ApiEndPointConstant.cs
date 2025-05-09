@@ -86,6 +86,7 @@
             public const string OrdersEndpoint = ApiEndpoint + "/orders";
             public const string OrderEndpoint = OrdersEndpoint + "/{id}";
             public const string CancelOrderEndpoint = OrdersEndpoint + "/cancel";
+            public const string UpdateStatusEndPoint = OrdersEndpoint + "/status";
             //public const string OrderByUserIdEndpoint = OrdersEndpoint + "/user/{userId}";
             //public const string OrderByStoreIdEndpoint = OrdersEndpoint + "/store/{storeId}";
             //public const string OrderByStatusEndpoint = OrdersEndpoint + "/status/{status}";

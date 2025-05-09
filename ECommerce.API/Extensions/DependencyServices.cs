@@ -60,7 +60,7 @@ public static class DependencyServices
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IRatingService, RatingService>();
-
+        services.AddScoped<IMoMoService, MoMoService>();
 
         return services;
     }

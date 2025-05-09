@@ -1,4 +1,5 @@
-﻿using ECommerce.Shared.Payload.Request.Auth;
+﻿using ECommerce.Shared.BusinessModels;
+using ECommerce.Shared.Payload.Request.Auth;
 using ECommerce.Shared.Payload.Response.Auth;
 using ECommerce.Web.Utils;
 using Microsoft.AspNetCore.Authentication;
@@ -32,6 +33,18 @@ namespace ECommerce.Web.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Register()
+        {
+            // If user is already logged in, redirect to home page
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -41,6 +54,47 @@ namespace ECommerce.Web.Controllers
         {
             await HttpContext.SignOutAsync("MyCookieAuth");
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+
+                // Prepare the request body
+                var requestBody = new
+                {
+                    username = model.Email,  // Using email as username
+                    email = model.Email,
+                    passwordHash = model.Password,  // Password will be hashed by the API
+                    firstName = model.FullName,
+                    lastName = model.FullName,
+                    phoneNumber = model.PhoneNumber,
+                    emailConfirmed = false  // Default to false, will be confirmed later
+                };
+
+                var response = await _httpService.PostAsync<object>("users", requestBody);
+
+                // Successful registration
+                TempData["SuccessMessage"] = "Your account has been created successfully. Please log in.";
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Console.WriteLine($"Error during registration: {ex.Message}");
+
+                // Add specific error message for user
+                ViewBag.ErrorMessage = "Registration failed. Please try again later.";
+
+                return View(model);
+            }
         }
 
 
